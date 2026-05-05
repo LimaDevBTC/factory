@@ -164,7 +164,8 @@ export const ALLERGENS = [
 export type Allergen = (typeof ALLERGENS)[number];
 
 export const DIETARY = [
-  'vegetariano','vegano','senza_glutine','senza_lattosio','halal','kosher',
+  'vegetariano','vegano','senza_glutine','senza_lattosio',
+  'piccante','bio','km_zero','halal','kosher',
 ] as const;
 export type Dietary = (typeof DIETARY)[number];
 

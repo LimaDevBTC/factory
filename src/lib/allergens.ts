@@ -52,6 +52,8 @@ export const DIETARY_LABELS = {
   piccante:       { it: 'Piccante',       en: 'Spicy',          de: 'Scharf' },
   bio:            { it: 'Biologico',      en: 'Organic',        de: 'Bio' },
   km_zero:        { it: 'Km 0',           en: 'Local',          de: 'Lokal' },
+  halal:          { it: 'Halal',          en: 'Halal',          de: 'Halal' },
+  kosher:         { it: 'Kosher',         en: 'Kosher',         de: 'Kosher' },
 } as const;
 
 export type Dietary = keyof typeof DIETARY_LABELS;

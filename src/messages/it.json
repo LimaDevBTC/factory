@@ -1,0 +1,94 @@
+{
+  "nav": {
+    "home": "Home",
+    "menu": "Menu",
+    "prenota": "Prenota",
+    "contatti": "Contatti"
+  },
+  "actions": {
+    "view_menu": "Vedi il menu",
+    "view_gusti": "Vedi i gusti",
+    "view_carta": "Vedi la carta",
+    "view_carta_vini": "Vedi la carta dei vini",
+    "view_panini": "Vedi i panini",
+    "view_dolci": "Vedi i dolci",
+    "book_table": "Prenota un tavolo",
+    "see_hours": "Orari",
+    "directions": "Come arrivare",
+    "send": "Invia"
+  },
+  "filters": {
+    "all": "Tutti",
+    "gluten_free": "Senza glutine",
+    "lactose_free": "Senza lattosio",
+    "vegetarian": "Vegetariano",
+    "vegan": "Vegano",
+    "dietary_label": "Filtra per dieta",
+    "allergen_label": "Nascondi allergeni"
+  },
+  "menu": {
+    "from_price": "da",
+    "unavailable": "Non disponibile",
+    "no_items": "Nessun piatto disponibile al momento."
+  },
+  "booking": {
+    "title": "Prenota un tavolo",
+    "name": "Nome e cognome",
+    "phone": "Telefono",
+    "email": "Email (facoltativo)",
+    "party_size": "Numero di persone",
+    "requested_at": "Data e ora",
+    "notes": "Note (facoltativo)",
+    "consent": "Acconsento al trattamento dei miei dati per la prenotazione.",
+    "marketing": "Voglio ricevere offerte e novità (facoltativo).",
+    "submit": "Richiedi prenotazione",
+    "submitting": "Invio in corso…",
+    "success_title": "Richiesta inviata",
+    "success_body": "Ti contattiamo a breve per confermare.",
+    "error_generic": "Qualcosa è andato storto. Riprova tra poco."
+  },
+  "contatti": {
+    "title": "Contatti",
+    "address": "Indirizzo",
+    "phone": "Telefono",
+    "whatsapp": "WhatsApp",
+    "email": "Email",
+    "hours": "Orari",
+    "closed": "Chiuso",
+    "open_today": "Aperti oggi",
+    "map_consent": "Per visualizzare la mappa devi accettare i cookie marketing."
+  },
+  "days": {
+    "mon": "Lunedì",
+    "tue": "Martedì",
+    "wed": "Mercoledì",
+    "thu": "Giovedì",
+    "fri": "Venerdì",
+    "sat": "Sabato",
+    "sun": "Domenica"
+  },
+  "footer": {
+    "ai_disclosure": "Alcune descrizioni di questo sito sono state generate con assistenza di intelligenza artificiale.",
+    "cookie_preferences": "Preferenze cookie",
+    "privacy": "Privacy",
+    "terms": "Termini",
+    "p_iva": "P.IVA"
+  },
+  "cookies": {
+    "title": "Cookie",
+    "body": "Usiamo cookie tecnici sempre attivi e, se accetti, anche di analisi e marketing. Puoi cambiare scelta in qualsiasi momento.",
+    "necessary": "Necessari",
+    "analytics": "Analisi",
+    "marketing": "Marketing",
+    "accept_all": "Accetta tutto",
+    "save": "Salva preferenze",
+    "reject_all": "Rifiuta",
+    "always_on": "Sempre attivi"
+  },
+  "common": {
+    "back": "Indietro",
+    "loading": "Caricamento…",
+    "not_found_title": "Locale non trovato",
+    "not_found_body": "L'indirizzo che hai digitato non corrisponde a nessun locale attivo."
+  }
+}

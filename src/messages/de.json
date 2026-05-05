@@ -1,0 +1,94 @@
+{
+  "nav": {
+    "home": "Start",
+    "menu": "Speisekarte",
+    "prenota": "Reservieren",
+    "contatti": "Kontakt"
+  },
+  "actions": {
+    "view_menu": "Speisekarte ansehen",
+    "view_gusti": "Sorten ansehen",
+    "view_carta": "Karte ansehen",
+    "view_carta_vini": "Weinkarte ansehen",
+    "view_panini": "Panini ansehen",
+    "view_dolci": "Süßspeisen ansehen",
+    "book_table": "Tisch reservieren",
+    "see_hours": "Öffnungszeiten",
+    "directions": "Wegbeschreibung",
+    "send": "Senden"
+  },
+  "filters": {
+    "all": "Alle",
+    "gluten_free": "Glutenfrei",
+    "lactose_free": "Laktosefrei",
+    "vegetarian": "Vegetarisch",
+    "vegan": "Vegan",
+    "dietary_label": "Nach Ernährung filtern",
+    "allergen_label": "Allergene ausblenden"
+  },
+  "menu": {
+    "from_price": "ab",
+    "unavailable": "Nicht verfügbar",
+    "no_items": "Aktuell keine Artikel verfügbar."
+  },
+  "booking": {
+    "title": "Tisch reservieren",
+    "name": "Vor- und Nachname",
+    "phone": "Telefon",
+    "email": "E-Mail (optional)",
+    "party_size": "Anzahl Personen",
+    "requested_at": "Datum und Uhrzeit",
+    "notes": "Notizen (optional)",
+    "consent": "Ich stimme der Verarbeitung meiner Daten für die Reservierung zu.",
+    "marketing": "Ich möchte Angebote und Neuigkeiten erhalten (optional).",
+    "submit": "Reservierung anfragen",
+    "submitting": "Wird gesendet…",
+    "success_title": "Anfrage gesendet",
+    "success_body": "Wir kontaktieren Sie zur Bestätigung.",
+    "error_generic": "Etwas ist schiefgelaufen. Bitte gleich noch einmal versuchen."
+  },
+  "contatti": {
+    "title": "Kontakt",
+    "address": "Adresse",
+    "phone": "Telefon",
+    "whatsapp": "WhatsApp",
+    "email": "E-Mail",
+    "hours": "Öffnungszeiten",
+    "closed": "Geschlossen",
+    "open_today": "Heute geöffnet",
+    "map_consent": "Um die Karte zu sehen, müssen Sie Marketing-Cookies akzeptieren."
+  },
+  "days": {
+    "mon": "Montag",
+    "tue": "Dienstag",
+    "wed": "Mittwoch",
+    "thu": "Donnerstag",
+    "fri": "Freitag",
+    "sat": "Samstag",
+    "sun": "Sonntag"
+  },
+  "footer": {
+    "ai_disclosure": "Einige Beschreibungen auf dieser Website wurden mit Hilfe künstlicher Intelligenz erstellt.",
+    "cookie_preferences": "Cookie-Einstellungen",
+    "privacy": "Datenschutz",
+    "terms": "AGB",
+    "p_iva": "USt-IdNr."
+  },
+  "cookies": {
+    "title": "Cookies",
+    "body": "Wir verwenden immer aktive technische Cookies und, sofern Sie zustimmen, auch Analyse- und Marketing-Cookies. Sie können Ihre Auswahl jederzeit ändern.",
+    "necessary": "Notwendig",
+    "analytics": "Analyse",
+    "marketing": "Marketing",
+    "accept_all": "Alle akzeptieren",
+    "save": "Auswahl speichern",
+    "reject_all": "Ablehnen",
+    "always_on": "Immer aktiv"
+  },
+  "common": {
+    "back": "Zurück",
+    "loading": "Lädt…",
+    "not_found_title": "Lokal nicht gefunden",
+    "not_found_body": "Die eingegebene Adresse entspricht keinem aktiven Lokal."
+  }
+}

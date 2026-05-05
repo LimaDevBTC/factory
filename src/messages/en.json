@@ -1,0 +1,94 @@
+{
+  "nav": {
+    "home": "Home",
+    "menu": "Menu",
+    "prenota": "Book",
+    "contatti": "Contact"
+  },
+  "actions": {
+    "view_menu": "See the menu",
+    "view_gusti": "See the flavours",
+    "view_carta": "See the list",
+    "view_carta_vini": "See the wine list",
+    "view_panini": "See the sandwiches",
+    "view_dolci": "See the desserts",
+    "book_table": "Book a table",
+    "see_hours": "Hours",
+    "directions": "Directions",
+    "send": "Send"
+  },
+  "filters": {
+    "all": "All",
+    "gluten_free": "Gluten-free",
+    "lactose_free": "Lactose-free",
+    "vegetarian": "Vegetarian",
+    "vegan": "Vegan",
+    "dietary_label": "Filter by diet",
+    "allergen_label": "Hide allergens"
+  },
+  "menu": {
+    "from_price": "from",
+    "unavailable": "Unavailable",
+    "no_items": "No items available right now."
+  },
+  "booking": {
+    "title": "Book a table",
+    "name": "Full name",
+    "phone": "Phone",
+    "email": "Email (optional)",
+    "party_size": "Party size",
+    "requested_at": "Date and time",
+    "notes": "Notes (optional)",
+    "consent": "I consent to the processing of my data for the booking.",
+    "marketing": "I want to receive offers and news (optional).",
+    "submit": "Request booking",
+    "submitting": "Sending…",
+    "success_title": "Request sent",
+    "success_body": "We'll contact you shortly to confirm.",
+    "error_generic": "Something went wrong. Try again in a moment."
+  },
+  "contatti": {
+    "title": "Contact",
+    "address": "Address",
+    "phone": "Phone",
+    "whatsapp": "WhatsApp",
+    "email": "Email",
+    "hours": "Hours",
+    "closed": "Closed",
+    "open_today": "Open today",
+    "map_consent": "To see the map you must accept marketing cookies."
+  },
+  "days": {
+    "mon": "Monday",
+    "tue": "Tuesday",
+    "wed": "Wednesday",
+    "thu": "Thursday",
+    "fri": "Friday",
+    "sat": "Saturday",
+    "sun": "Sunday"
+  },
+  "footer": {
+    "ai_disclosure": "Some descriptions on this site were generated with the assistance of artificial intelligence.",
+    "cookie_preferences": "Cookie preferences",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "p_iva": "VAT"
+  },
+  "cookies": {
+    "title": "Cookies",
+    "body": "We use always-on technical cookies and, if you accept, analytics and marketing too. You can change your choice anytime.",
+    "necessary": "Necessary",
+    "analytics": "Analytics",
+    "marketing": "Marketing",
+    "accept_all": "Accept all",
+    "save": "Save preferences",
+    "reject_all": "Reject",
+    "always_on": "Always on"
+  },
+  "common": {
+    "back": "Back",
+    "loading": "Loading…",
+    "not_found_title": "Place not found",
+    "not_found_body": "The address you typed does not match any live place."
+  }
+}

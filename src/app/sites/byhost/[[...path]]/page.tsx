@@ -14,7 +14,7 @@ export default async function CustomDomainPlaceholder() {
         <main className="flex min-h-dvh items-center justify-center bg-background px-6">
           <div className="max-w-md space-y-3 text-center">
             <h1 className="font-display text-4xl font-semibold">
-              {tenant.business_name}
+              {tenant.name}
             </h1>
             <p className="text-sm text-muted-foreground">
               Sito in costruzione. Tornaci tra qualche giorno.

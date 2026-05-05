@@ -2,16 +2,18 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTransition } from 'react';
-import type { TFn } from '@/lib/i18n';
 
-const DIETARY_OPTIONS = [
-  { key: 'vegetariano', labelKey: 'filters.vegetarian' },
-  { key: 'vegano', labelKey: 'filters.vegan' },
-  { key: 'senza_glutine', labelKey: 'filters.gluten_free' },
-  { key: 'senza_lattosio', labelKey: 'filters.lactose_free' },
-] as const;
+const DIETARY_KEYS = ['vegetariano', 'vegano', 'senza_glutine', 'senza_lattosio'] as const;
 
-export function MenuFilters({ t }: { t: TFn }) {
+type Labels = {
+  dietary: string;
+  vegetariano: string;
+  vegano: string;
+  senza_glutine: string;
+  senza_lattosio: string;
+};
+
+export function MenuFilters({ labels }: { labels: Labels }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -34,16 +36,16 @@ export function MenuFilters({ t }: { t: TFn }) {
 
   return (
     <div className="sticky top-[57px] z-20 -mx-4 mb-6 border-b border-border/60 bg-background/85 px-4 py-2 backdrop-blur">
-      <p className="sr-only">{t('filters.dietary_label')}</p>
+      <p className="sr-only">{labels.dietary}</p>
       <div className="flex flex-wrap gap-2">
-        {DIETARY_OPTIONS.map((opt) => {
-          const active = dietary.has(opt.key);
+        {DIETARY_KEYS.map((key) => {
+          const active = dietary.has(key);
           return (
             <button
-              key={opt.key}
+              key={key}
               type="button"
               disabled={pending}
-              onClick={() => toggle(opt.key)}
+              onClick={() => toggle(key)}
               aria-pressed={active}
               className={
                 'rounded-full border px-3 py-1 text-xs transition ' +
@@ -52,7 +54,7 @@ export function MenuFilters({ t }: { t: TFn }) {
                   : 'border-border bg-card text-muted-foreground hover:bg-secondary')
               }
             >
-              {t(opt.labelKey as 'filters.vegetarian')}
+              {labels[key]}
             </button>
           );
         })}

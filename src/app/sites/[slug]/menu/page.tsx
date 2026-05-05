@@ -54,7 +54,15 @@ export default async function MenuPage({
         <h1 className="font-display text-4xl font-semibold tracking-tight">{pageLabel}</h1>
       </header>
 
-      <MenuFilters t={t} />
+      <MenuFilters
+        labels={{
+          dietary: t('filters.dietary_label'),
+          vegetariano: t('filters.vegetarian'),
+          vegano: t('filters.vegan'),
+          senza_glutine: t('filters.gluten_free'),
+          senza_lattosio: t('filters.lactose_free'),
+        }}
+      />
 
       {totalItems === 0 ? (
         <p className="rounded-md border border-dashed border-border p-8 text-center text-sm text-muted-foreground">

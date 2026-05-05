@@ -12,14 +12,15 @@ import { NextRequest, NextResponse } from 'next/server';
  *   www.<org-root>                   → /marketing/*
  *   app.<org-root>                   → /app/*
  *   <slug>.<org-root>                → /sites/<slug>/*
- *   <custom-domain>                  → /sites/__custom__/* with x-custom-domain header
+ *   <custom-domain>                  → /sites/byhost/* with x-custom-domain header
  *
  * For v1, KNOWN_ROOT_DOMAINS env var lists configured org roots (Edson's
  * 'factory.app' is the only one). Adding a new org = adding to that list +
  * inserting a row into `organizations`. No code change.
  *
- * The org_id resolution from root_domain is done at page level (RSC) since
- * middleware can't query DB without an extra fetch. Pages cache by host.
+ * Headers set on the REQUEST so RSC `headers()` can read them. Setting on
+ * the response only sends them back to the browser, which is not what
+ * downstream RSCs read.
  */
 
 const KNOWN_ROOT_DOMAINS = (process.env.KNOWN_ROOT_DOMAINS || 'factory.app,lvh.me')
@@ -39,6 +40,18 @@ function resolveRootDomain(host: string): string | null {
   return null;
 }
 
+function rewriteWithHeaders(
+  url: URL,
+  reqHeaders: Headers,
+  extra: Record<string, string>,
+) {
+  const headers = new Headers(reqHeaders);
+  for (const [k, v] of Object.entries(extra)) {
+    headers.set(k, v);
+  }
+  return NextResponse.rewrite(url, { request: { headers } });
+}
+
 export function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
   const rawHost = req.headers.get('host') || '';
@@ -49,25 +62,19 @@ export function middleware(req: NextRequest) {
   // Unknown host → custom domain; page does DB lookup by host
   if (!rootDomain) {
     url.pathname = `/sites/byhost${url.pathname}`;
-    const res = NextResponse.rewrite(url);
-    res.headers.set('x-custom-domain', host);
-    return res;
+    return rewriteWithHeaders(url, req.headers, { 'x-custom-domain': host });
   }
 
   // Marketing root
   if (host === rootDomain || host === `www.${rootDomain}`) {
     url.pathname = `/marketing${url.pathname}`;
-    const res = NextResponse.rewrite(url);
-    res.headers.set('x-org-root-domain', rootDomain);
-    return res;
+    return rewriteWithHeaders(url, req.headers, { 'x-org-root-domain': rootDomain });
   }
 
   // SaaS app
   if (host === `app.${rootDomain}`) {
     url.pathname = `/app${url.pathname}`;
-    const res = NextResponse.rewrite(url);
-    res.headers.set('x-org-root-domain', rootDomain);
-    return res;
+    return rewriteWithHeaders(url, req.headers, { 'x-org-root-domain': rootDomain });
   }
 
   // Tenant subdomain
@@ -80,10 +87,10 @@ export function middleware(req: NextRequest) {
       return new NextResponse('Invalid hostname', { status: 400 });
     }
     url.pathname = `/sites/${sub}${url.pathname}`;
-    const res = NextResponse.rewrite(url);
-    res.headers.set('x-org-root-domain', rootDomain);
-    res.headers.set('x-tenant-slug', sub);
-    return res;
+    return rewriteWithHeaders(url, req.headers, {
+      'x-org-root-domain': rootDomain,
+      'x-tenant-slug': sub,
+    });
   }
 
   return NextResponse.next();

@@ -1,5 +1,5 @@
-import type { StageScript } from '../index';
-import { COMMON_COACHING_PT } from '../index';
+import type { StageScript } from './index';
+import { COMMON_COACHING_PT } from './index';
 
 /**
  * Hindi sales pitch scripts for Indian-Italian business owners.

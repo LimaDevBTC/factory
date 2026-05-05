@@ -1,5 +1,5 @@
-import type { StageScript } from '../index';
-import { COMMON_COACHING_PT } from '../index';
+import type { StageScript } from './index';
+import { COMMON_COACHING_PT } from './index';
 
 /**
  * Arabic sales pitch scripts for Arab-Italian business owners.

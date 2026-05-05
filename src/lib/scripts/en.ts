@@ -1,5 +1,5 @@
-import type { StageScript } from '../index';
-import { COMMON_COACHING_PT } from '../index';
+import type { StageScript } from './index';
+import { COMMON_COACHING_PT } from './index';
 
 /**
  * English sales pitch scripts.

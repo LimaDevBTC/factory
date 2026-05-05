@@ -48,7 +48,7 @@ export function middleware(req: NextRequest) {
 
   // Unknown host → custom domain; page does DB lookup by host
   if (!rootDomain) {
-    url.pathname = `/sites/__custom__${url.pathname}`;
+    url.pathname = `/sites/byhost${url.pathname}`;
     const res = NextResponse.rewrite(url);
     res.headers.set('x-custom-domain', host);
     return res;

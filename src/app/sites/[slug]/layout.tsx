@@ -9,8 +9,8 @@ import {
   localeFromTenant,
 } from '@/lib/i18n';
 import { getOrganizationByRootDomain, getTenantBySlug } from '@/lib/tenant';
-import { VIBE_CONFIG } from '@/lib/verticals';
-import { renderTenantStyle } from '@/lib/branding';
+import { pairingForTenant, renderTenantStyle } from '@/lib/branding';
+import { pairingClassNames } from '@/lib/fonts';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,12 +36,14 @@ export default async function TenantLayout({
   const messages = getMessages(locale);
   const t = createT(messages);
   const availableLocales = localeFromTenant(tenant);
-  const vibe = VIBE_CONFIG[tenant.vibe];
-  const fontPairing = (tenant.font_pairing as keyof typeof FONT_CLASSNAMES) ?? 'cinzel_inter';
-  const fontClass = FONT_CLASSNAMES[fontPairing] ?? FONT_CLASSNAMES.cinzel_inter;
+  const pairing = pairingForTenant(tenant);
 
   return (
-    <div className={`min-h-dvh bg-background ${fontClass}`}>
+    <div
+      data-tenant={tenant.id}
+      data-vibe={tenant.vibe}
+      className={`min-h-dvh bg-background ${pairingClassNames(pairing)}`}
+    >
       <style dangerouslySetInnerHTML={{ __html: renderTenantStyle(tenant) }} />
       <Header
         tenant={tenant}
@@ -49,17 +51,8 @@ export default async function TenantLayout({
         locale={locale}
         availableLocales={availableLocales}
       />
-      <div data-vibe={tenant.vibe} data-vibe-icon={vibe?.icon}>
-        {children}
-      </div>
+      {children}
       <Footer tenant={tenant} t={t} />
     </div>
   );
 }
-
-const FONT_CLASSNAMES: Record<string, string> = {
-  cinzel_inter: 'font-sans',
-  playfair_lato: 'font-sans',
-  unbounded_inter: 'font-sans',
-  cormorant_dmsans: 'font-sans',
-};

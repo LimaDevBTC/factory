@@ -11,8 +11,8 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        display: ['var(--font-cinzel)', 'serif'],
+        sans: ['var(--tenant-font-body, var(--font-inter))', 'system-ui', 'sans-serif'],
+        display: ['var(--tenant-font-display, var(--font-cinzel))', 'serif'],
       },
       colors: {
         border: 'hsl(var(--border))',

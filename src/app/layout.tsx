@@ -1,19 +1,6 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Cinzel } from 'next/font/google';
+import { ROOT_FONT_VARS } from '@/lib/fonts';
 import './globals.css';
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-});
-
-const cinzel = Cinzel({
-  subsets: ['latin'],
-  variable: '--font-cinzel',
-  display: 'swap',
-  weight: ['400', '600', '700'],
-});
 
 export const metadata: Metadata = {
   title: {
@@ -40,7 +27,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="it" className={`${inter.variable} ${cinzel.variable}`}>
+    <html lang="it" className={ROOT_FONT_VARS}>
       <head>
         <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png" />
         <link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png" />

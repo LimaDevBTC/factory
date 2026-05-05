@@ -1,4 +1,4 @@
--- Trattoria Factory — Supabase schema
+-- Factory — Supabase schema
 -- Run on a fresh Supabase project (region: Frankfurt eu-central-1)
 -- Author: Edson + Claude Code, 2026-05
 

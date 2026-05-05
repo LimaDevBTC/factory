@@ -17,11 +17,11 @@
  *      language code not yet there
  */
 
-import { italianScripts } from './scripts/it';
-import { mandarinScripts } from './scripts/zh-CN';
-import { arabicScripts } from './scripts/ar';
-import { hindiScripts } from './scripts/hi-IN';
-import { englishScripts } from './scripts/en';
+import { italianScripts } from './it';
+import { mandarinScripts } from './zh-CN';
+import { arabicScripts } from './ar';
+import { hindiScripts } from './hi-IN';
+import { englishScripts } from './en';
 
 export const PIPELINE_STAGES = [
   'approach',

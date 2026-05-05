@@ -13,35 +13,39 @@ Supported verticals: trattoria, osteria, ristorante, agriturismo, pizzeria, caff
 - Node 20+
 - pnpm 9+ (or npm — pnpm preferred for monorepo readiness)
 - Supabase CLI (`brew install supabase/tap/supabase`)
-- A Supabase project in **eu-central-1 (Frankfurt)**
-- Anthropic API key
-- Cloudflare account with R2 enabled
-- Stripe account (Italy or pan-EU entity)
-- A domain (`factory.app` or whatever — bought from a registrar that supports CNAME on apex via flattening, or use Cloudflare DNS)
+- A Supabase project in **eu-central-1 (Frankfurt)** — already provisioned (`wvovydlmntlkpcaazdhc`)
+
+V1 é **cash-only**, sem Stripe. Adições conforme tarefas pedirem:
+
+- Anthropic API key (T3 — menu extraction)
+- Cloudflare R2 (T4 — photo/voice upload)
+- Resend API key (T7 — welcome email + recibo PDF)
+- Stripe (T7.5 — diferido pós-MEI/CNPJ ativo)
+- Domínio próprio (deferido — `lvh.me` cobre dev local)
 
 ---
 
-## Quick start (laptop, day 1)
+## Quick start (laptop)
 
 ```bash
-# 1. Clone & install
+# 1. Install
 pnpm install
 
-# 2. Copy env template and fill in
-cp .env.example .env.local
+# 2. Configurar env local (já criado, edita se precisar)
+#    Vars mínimas pra T1: KNOWN_ROOT_DOMAINS, NEXT_PUBLIC_SUPABASE_URL,
+#    NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, OPERATOR_EMAILS
+cp .env.example .env.local   # se ainda não tem
 
-# 3. Push schema to your Supabase project
-supabase link --project-ref <your-project-ref>
-supabase db push
+# 3. Schema já tá deployado no projeto Supabase Frankfurt.
+#    Caso precise re-pushar: supabase link --project-ref wvovydlmntlkpcaazdhc && supabase db push
 
-# 4. Local dev with subdomain support
-# lvh.me resolves all subdomains to 127.0.0.1, perfect for multi-tenant local dev
+# 4. Dev local com suporte a subdomínio (lvh.me resolve tudo pra 127.0.0.1)
 pnpm dev
 
-# Open these URLs:
-#   http://lvh.me:3000              → marketing
-#   http://app.lvh.me:3000          → SaaS app
-#   http://gelateriadamarco.lvh.me:3000   → tenant site (after creating one)
+# URLs:
+#   http://lvh.me:3000                    → marketing (it)
+#   http://app.lvh.me:3000                → SaaS app (login pt)
+#   http://<slug>.lvh.me:3000             → site tenant (it)
 ```
 
 ---
@@ -73,7 +77,8 @@ The build is a graph of tasks with explicit dependencies, **no fixed schedule**.
 | **T4** | Pipeline UI stages 1-3 (approach, consent, capture) | T1 | 6-8h |
 | **T5** | Pipeline UI stages 4-6 (processing, ready, present) + bg worker | T2, T3, T4 | 4-6h |
 | **T6** | Pipeline UI stages 7-8 (pricing, close) | T4 | 3-4h |
-| **T7** | Stripe Checkout + legal docs + welcome email | T6 | 6-10h |
+| **T7** | Cash close + legal docs + welcome email | T6 | 5-8h |
+| **T7.5** | Stripe activation (pós-MEI/CNPJ) — diferido | T7 + Stripe Standard | 4-6h |
 | **T8** | Owner dashboard (post-purchase, italian) | T7 | 4-6h |
 | **T9** | Demos with real Cosenza menus + pitch dry-run (parallelizable) | T2 minimum | 3-5h |
 
@@ -138,7 +143,8 @@ supabase gen types typescript --linked > src/lib/supabase/types.ts  # regen type
 - [ ] T4 — Pipeline UI stages 1-3
 - [ ] T5 — Pipeline UI stages 4-6
 - [ ] T6 — Pipeline UI stages 7-8
-- [ ] T7 — Stripe + legal + welcome email
+- [ ] T7 — Cash close + legal + welcome email
+- [ ] T7.5 — Stripe activation (diferido)
 - [ ] T8 — Owner dashboard
 - [ ] T9 — Cosenza demos + pitch dry-run
 - [ ] First paying customer in Cosenza

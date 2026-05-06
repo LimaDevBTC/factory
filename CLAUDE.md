@@ -243,12 +243,11 @@ factory/
     │       └── gdpr/
     │           └── delete/route.ts         ← right to erasure
     ├── components/
-    │   ├── factory/                   ← operator UI (PT)
-    │   │   ├── SpeakButton.tsx        ← TTS button, plays IT script via speechSynthesis
+    │   ├── pipeline/                  ← operator UI (PT)
     │   │   ├── RecordButton.tsx       ← captures audio (consent, owner voice)
     │   │   ├── PhotoUploader.tsx
     │   │   ├── StageHeader.tsx        ← shows current stage in pipeline
-    │   │   ├── ScriptCard.tsx         ← renders PT coaching + IT script + 🔊 button
+    │   │   ├── ScriptCard.tsx         ← renders PT coaching + IT cheat-sheet text
     │   │   ├── MenuReview.tsx
     │   │   ├── BrandPicker.tsx
     │   │   └── PreviewFrame.tsx
@@ -270,7 +269,7 @@ factory/
     │   ├── claude.ts                  ← Anthropic API wrapper
     │   ├── verticals.ts               ← vibe definitions, category hints
     │   ├── allergens.ts               ← EU 14 allergens, translated
-    │   ├── scripts.ts                 ← pipeline stages, PT coaching + IT TTS scripts
+    │   ├── scripts/                   ← pipeline playbook: PT coaching + IT cheat-sheet
     │   ├── stripe.ts
     │   ├── email.ts                   ← Resend wrapper, locale-aware send
     │   └── i18n.ts
@@ -309,58 +308,40 @@ RLS is enabled on all tenant-scoped tables. Public `select` policies only expose
 
 ## The factory pipeline (the operator product)
 
-This is `/app/pipeline/*` — a **sales pipeline machine**, not a wizard. It guides Edson stage-by-stage through each pitch, in **Portuguese**, with **Italian TTS scripts** to play to the owner via the phone's native text-to-speech. Mobile-first, PWA-installable, works on bad network.
+This is `/app/pipeline/*` — a **sales pipeline machine**, not a wizard. It guides Edson stage-by-stage through each pitch, in **Portuguese**, with **Italian cheat-sheet text** ele lê/improvisa com o dono. Mobile-first, PWA-installable, works on bad network.
 
-### Critical UI separation — FOUR layers
+### Critical UI separation — THREE layers
 
 | Layer | For whom | Language(s) |
 |---|---|---|
-| 1. Operator UI (`/app/pipeline/*`) | Edson | **pt-BR always** |
-| 2. TTS pitch scripts | Business owner during pitch | **Owner's native language** (operator-selected per session) |
-| 3. Owner dashboard (`/app/dashboard/*`) | Owner managing their site post-sale | **Owner's native language** (set on tenant) |
-| 4. Public site (`/sites/[slug]`) | End consumers of the business | **Italian default** + tenant-enabled locales (EN/DE/etc) |
+| 1. Operator UI (`/app/pipeline/*`) | Edson | **pt-BR always** (com sugestão IT inline pra ler ao dono) |
+| 2. Owner dashboard (`/app/dashboard/*`) | Owner managing their site post-sale | **Owner's native language** (set on tenant, default `it`) |
+| 3. Public site (`/sites/[slug]`) | End consumers of the business | **Italian default** + tenant-enabled locales (EN/DE/etc) |
 
-Layer 2 lives in `src/lib/scripts.ts` keyed by `TargetLang`. Each pipeline stage has translated/culturally-adapted scripts per supported language. **Translations are not literal — they adapt culturally** (Italian values *relazione*, Chinese values hierarchy/respect, Arabic values hospitality before business).
+Italian appears in operator UI **as plain text inside PT cards** — `italian_hint` per stage, `italian_variants` pra contextos diferentes. Edson lê e improvisa com naturalidade. Sem TTS, sem botão 🔊, sem detecção de idioma.
 
-Layer 3 follows the tenant's `owner_locale` field (separate from `default_locale` which controls the public site).
+Layer 2 follows the tenant's `owner_locale` field (separate from `default_locale` which controls the public site).
 
-Never mix layers. Edson never reads Italian/Chinese/Arabic in his factory UI; the customer never sees Portuguese.
+Never mix layers. Edson reads PT (and improvisa em italiano com a cheat-sheet); o cliente nunca vê português.
 
-### Supported languages for pitch (target_lang)
+### Pipeline language: italian-only in v1
 
-Tier 1 (TTS native quality everywhere): `it-IT`, `en-US`, `en-GB`, `es-ES`, `fr-FR`, `de-DE`, `pt-BR`, `pt-PT`
-
-Tier 2 (TTS works, quality varies, fallback to written text on poor synthesis): `zh-CN`, `zh-TW`, `ar-SA`, `ar-EG`, `hi-IN`, `pa-IN`, `ro-RO`, `ru-RU`, `uk-UA`, `tr-TR`, `ja-JP`, `ko-KR`
-
-Tier 3 (TTS limited or unavailable, **use pre-recorded MP3 from ElevenLabs/Google Neural2**, hosted on R2): `sq-AL`, `bn-IN`, `am-ET`, `tl-PH`, `vi-VN`, `ur-PK`
-
-The `<SpeakButton>` component handles tier detection automatically — falls back to `<audio>` element with pre-recorded MP3 when device TTS is unavailable or low quality for the language.
-
-### Cultural adaptation, not translation
-
-Each pipeline stage's script for a language is **written by or reviewed by a native speaker familiar with the business culture of that group's diaspora in Italy**. Examples of cultural deltas:
-
-- **Italian**: opens with *"Buongiorno, sono Edson"*, emphasizes *senza impegno*, values *relazione* before *affare*.
-- **Mandarin**: opens with *"您好"* (formal `nín`), addresses oldest person first, presents/receives card with both hands, mentions concrete benefit early (more customers, more revenue).
-- **Arabic**: greets with *"السلام عليكم"* (peace be upon you), accepts tea/coffee if offered, allows several minutes of small talk before business, never points sole of foot at owner.
-- **Hindi/Punjabi**: respectful greeting *"Namaste / Sat Sri Akal"*, addresses owner as *ji* suffix, doesn't push closure, respects multi-generational decision-making.
-
-Translation files for each language are checked into `src/lib/scripts/{lang}.ts` and reviewed by a native speaker before going live in that language.
+V1 ataca Cosenza, mercado italianófono. Sem suporte a outros idiomas pro pitch (chinês, árabe, hindi pra diáspora) na primeira versão. Esse trabalho fica deferido pra v1.x quando Edson decidir abrir o diaspora play. Quando voltar, é tarefa nova: novo schema de scripts multilíngue, novo SpeakButton component, native-speaker review per language. Git history preserva a versão multilíngue anterior (commit `feat(t1-c): tenant/org resolution helpers` e adjacentes).
 
 ### Pipeline stages
 
-Each pitch is a `pitch_session` row that moves through these states:
+Cada pitch é uma `pitch_session` row que evolui pelos states:
 
-| Stage | What happens | UI elements |
+| Stage | O que acontece | UI |
 |---|---|---|
-| `approach` | Edson approaches owner. Plays opening script via TTS. | PT coaching, IT script + 🔊 button, "Fiz a abordagem" |
-| `consent` | Edson records explicit verbal consent before photos/recording. | PT coaching, IT script + 🔊, 🎙 record button, "Consentimento OK" |
-| `capture` | Edson collects data, photos, owner's voice memo. | PT form + camera buttons + IT prompts for each question + 🎙 owner voice |
-| `processing` | Background job: Claude vision extracts menu, generates copy, builds tenant + items, renders preview site. | Spinner, ETA, "Tu volta pra mesa, eu te aviso" |
-| `ready` | Push notification — site ready. Edson reviews quickly (30s). | Quick-edit interface for obvious errors |
-| `present` | Edson shows site to owner on his phone. Plays "guarda cosa ho preparato". | PT coaching, IT script + 🔊, full-screen preview iframe |
-| `pricing` | Edson reveals price. Includes objection-handler variants (voucher digitalizzazione, lifetime option). | PT coaching, IT scripts (main + variants) + 🔊 |
-| `close` | Edson asks for the sale. Generates payment link if yes. | PT coaching, IT script + 🔊, outcome buttons |
+| `approach` | Edson aborda o dono. Lê coaching PT + cheat-sheet IT. | ScriptCard (PT coaching + texto IT + variantes), botão "Aceitou ouvir" |
+| `consent` | Grava consentimento verbal antes de fotos. | ScriptCard, RecordButton, botão "Consentimento gravado" |
+| `capture` | Coleta dados, fotos, voz do dono. | Form PT + camera + RecordButton + variantes IT pra cada pergunta |
+| `processing` | Background job: Claude vision extrai menu, gera cópia, monta tenant + items. | Spinner, ETA, "Volta pra mesa" |
+| `ready` | Push notification — site pronto. Edson revisa rápido (30s). | Quick-edit interface |
+| `present` | Edson mostra site ao dono. | ScriptCard com cheat-sheet IT, full-screen preview iframe |
+| `pricing` | Edson revela preço. Variantes pra objeções (voucher, upsell). | ScriptCard com main IT + variantes condicionais |
+| `close` | Edson pede a venda. | ScriptCard, outcome buttons (won/thinking/lost/no_show) |
 
 Outcomes recorded:
 - `won` — paid, site goes live, welcome email triggered
@@ -374,7 +355,7 @@ A wizard assumes happy path. A pipeline assumes **failure is data**: half the pi
 
 ### Scripts source
 
-All Portuguese coaching + Italian scripts live in `src/lib/scripts.ts` as a typed array. To update a script, edit that file — never hardcode strings in components. This makes localization audit trivial and lets us A/B test variants later.
+`src/lib/scripts/index.ts` exporta `PIPELINE_PLAYBOOK: Record<Stage, StagePlaybook>`. Cada stage tem `coaching_pt`, `italian_hint?` e `italian_variants?`. Pra editar um script, mexe nesse arquivo — nunca hardcode strings em components. Isso facilita auditoria e A/B test futuro.
 
 ---
 
@@ -747,10 +728,10 @@ T1 (Foundation)
 - Acceptance: upload 3 real menu photos, extracted JSON matches reality 90%+, allergens captured when written
 - Depends on: T1, partial T2 (needs DB)
 
-**T4 — Pipeline UI: stages 1-3** (~6-8h)
+**T4 — Pipeline UI: stages 1-3** (~5-7h)
 - `/app/pipeline` — list of in-flight `pitch_sessions` + KPIs (won/lost/thinking) + "+ Novo pitch" button
-- `/app/pipeline/new` — creates a new session, picks `target_lang`, redirects to first stage
-- `/app/pipeline/[sessionId]/approach` — `<ScriptCard>` with PT coaching + `<SpeakButton>` with IT script + variant picker, "Próximo" advances
+- `/app/pipeline/new` — creates a new session (italian-only em v1, sem language picker), redirects to first stage
+- `/app/pipeline/[sessionId]/approach` — `<ScriptCard>` com coaching PT + texto IT inline + variantes (collapse), botão "Próximo"
 - `/app/pipeline/[sessionId]/consent` — `<ScriptCard>` + `<RecordButton>` capturing consent audio to R2
 - `/app/pipeline/[sessionId]/capture` — form (PT) for nome/indirizzo/p_iva/contact_email/etc, photo uploaders, owner voice recorder, vibe picker, language enable list for the site
 - All stages write to `pitch_sessions` + advance `current_stage`
@@ -807,7 +788,7 @@ T1 (Foundation)
 - 3-4 real menus from Cosenza venues across vibes (1 gelateria, 1 caffetteria, 1 trattoria, 1 enoteca)
 - Run them through the factory end-to-end, polish the output
 - Fix any bugs surfaced
-- Memorize pitch in Italian (or rely fully on TTS)
+- Pratica o pitch lendo a cheat-sheet IT do PIPELINE_PLAYBOOK; com Vavà, alinhe quem fala o quê
 - Practice timing: target <10min from "facciamolo" to live URL
 - Acceptance: 4 demo sites live at `<slug>.factory.app`, pitch script comfortable
 - Depends on: T2 minimum (template renders), ideally T7 for end-to-end realism. Can iterate while later tasks finish.
@@ -834,6 +815,7 @@ If Claude Code finishes a task and is uncertain whether to continue, default to 
 - Multiple template families (one vibe-aware template until 10 paying customers)
 - Auto-onboarding for new orgs (until org #2 wants in)
 - Marketplace inbound (Model 3, not before validation of Models 1+2)
+- Multi-language pitch scripts (TTS, SpeakButton, scripts/{lang}.ts) — diáspora play deferido até Edson decidir atacar imigrantes donos de comércio
 
 ---
 
@@ -842,9 +824,9 @@ If Claude Code finishes a task and is uncertain whether to continue, default to 
 When working on this codebase:
 
 1. **Mobile-first always.** Every operator UI is built for an iPhone in landscape on a noisy restaurant table. No hover states, big tap targets, voice input where possible.
-2. **PT/IT separation is sacred.** Operator UI (`/app/*`) = Portuguese. Public sites (`/sites/*`) = Italian (default). TTS scripts = Italian. Never mix. Edson should never read Italian copy in the factory; the customer should never see Portuguese on their site.
-3. **Italian copy reaches users via two paths only**: (a) rendered on the public site, (b) spoken aloud via `speechSynthesis` Web API. Edson's job is to click 🔊, not to speak.
-4. **All scripts live in `src/lib/scripts.ts`.** Don't hardcode operator-facing PT strings or Italian TTS scripts in components. Centralize for audit, A/B test, and i18n cleanliness.
+2. **PT/IT separation is sacred.** Operator UI (`/app/*`) = Portuguese (com cheat-sheet IT inline pra ler ao dono). Public sites (`/sites/*`) = Italian (default). Marketing landing v1 = Portuguese-primary com bloco IT residual. Never mix layers. Customer never sees Portuguese on their site.
+3. **Italian no operator UI aparece como texto plano dentro de cards PT** (`italian_hint`/`italian_variants` em `PIPELINE_PLAYBOOK`). Sem TTS, sem botão 🔊 — Edson lê e improvisa. v1 ataca Cosenza italianófona; multilíngue diáspora é deferido.
+4. **All scripts live in `src/lib/scripts/index.ts`.** Don't hardcode operator-facing PT strings ou cheat-sheet IT em components. Centralize pra audit, A/B test, e edição rápida.
 5. **Don't add libraries lightly.** Stack is locked above. If you think you need a new dep, write a comment explaining why and ask Edson before adding.
 6. **GDPR is a feature.** Every new endpoint that handles personal data adds an `audit_log` entry. Every form has a consent checkbox where required.
 7. **Speed of onboarding > everything.** If a feature adds 30 seconds to the factory flow, justify it or cut it.
@@ -908,6 +890,9 @@ When working on this codebase:
 | 2026-05-05 | Tenant slug unique per org, not globally | Different orgs can have a `da-luigi.theirroot.com` without collision |
 | 2026-05-05 | Per-org root domain via env var (v1) → DB lookup (v2) | KNOWN_ROOT_DOMAINS env covers v1; switch to DB-driven when org #2 joins |
 | 2026-05-05 | Multi-language pitch scripts (12+ langs) | Imigrante donos de comércio são target subatendido; arquitetura suporta scripts culturalmente adaptados por idioma |
+| 2026-05-06 | **Reverte** decisão multi-language scripts. Pipeline v1 só PT coaching + IT cheat-sheet inline (texto) | Edson em Cosenza pitcha em italiano; SpeakButton/TargetLang/24-langs era over-engineering pra futuro hipotético. ~400 linhas removidas. Diáspora play (chinês, árabe, hindi) volta como tarefa nova quando Edson decidir atacar — não antes. Git history preserva o código original em `feat(t1-c)` se precisar resgatar. |
+| 2026-05-06 | Marketing landing v1 em PT-primary, IT-residual | Edson é o único viewer em v1 (vendas in-person, sem SEO). Italiano só pra raros visitantes diretos. Quando SEO/SEM começar (pós-V1.5), flipa pra IT-primary. |
+| 2026-05-06 | `<html lang>` dinâmico no root layout via `headers()` | Surfaces têm idiomas diferentes (pt-BR pra app/marketing, it pra tenant sites). Root layout lê `x-tenant-slug`/`x-custom-domain` setados pelo middleware. SEO correto sem precisar de layout per route group. |
 
 Add new decisions here as they happen. Don't undo prior decisions silently — append a new entry that supersedes.
 

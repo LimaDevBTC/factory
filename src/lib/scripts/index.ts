@@ -1,27 +1,16 @@
 /**
- * Scripts module — multilingual sales pipeline playbook.
+ * Pipeline playbook — Portuguese coaching + optional Italian cheat-sheet.
  *
- * Architecture:
- *   - PT coaching (`coaching_pt`) is the same regardless of target language.
- *     The PT coaching is OPERATOR-FACING; it doesn't change by who the owner is.
- *   - TTS scripts (`it_main`, `variants`) ARE language-specific and live in
- *     `./scripts/{lang}.ts`. They are not literal translations — they are
- *     culturally adapted by/with native speakers.
+ * v1 simplificado: zero infraestrutura multilíngue. O operador (Edson) lê o
+ * coaching em PT, e cada estágio carrega uma sugestão de frase em italiano
+ * (`italian_hint`) que ele pode ler/improvisar com o dono. Sem TTS, sem
+ * SpeakButton, sem registry de idiomas. Quando v1.x precisar de scripts em
+ * outros idiomas (chinês, árabe, hindi pra diáspora), volta como tarefa nova
+ * — git history preserva a versão multilíngue anterior.
  *
- * To add a new language:
- *   1. Create `./scripts/{lang}.ts` (e.g. `./scripts/zh-CN.ts`)
- *   2. Have a native speaker review/adapt cultural details (greetings, deference,
- *      pacing, taboos)
- *   3. Register in `SCRIPTS_REGISTRY` below
- *   4. Add to `default_locale` constraint in supabase/schema.sql if it's a new
- *      language code not yet there
+ * Pipeline = state machine: stages avançam, outcomes registrados, falha é
+ * dado. NÃO é wizard.
  */
-
-import { italianScripts } from './it';
-import { mandarinScripts } from './zh-CN';
-import { arabicScripts } from './ar';
-import { hindiScripts } from './hi-IN';
-import { englishScripts } from './en';
 
 export const PIPELINE_STAGES = [
   'approach',
@@ -37,120 +26,70 @@ export const PIPELINE_STAGES = [
 export type Stage = (typeof PIPELINE_STAGES)[number];
 export type Outcome = 'won' | 'lost' | 'thinking' | 'no_show' | 'archived';
 
-/**
- * BCP-47 language tags. Used for TTS lang attribute and for selecting scripts.
- * Keep in sync with supabase/schema.sql `default_locale` constraint.
- */
-export type TargetLang =
-  // Tier 1: TTS native quality everywhere
-  | 'it-IT' | 'en-US' | 'en-GB' | 'es-ES' | 'fr-FR' | 'de-DE' | 'pt-BR' | 'pt-PT'
-  // Tier 2: TTS works, quality varies
-  | 'zh-CN' | 'zh-TW' | 'ar-SA' | 'ar-EG' | 'hi-IN' | 'pa-IN' | 'ro-RO'
-  | 'ru-RU' | 'uk-UA' | 'tr-TR' | 'ja-JP' | 'ko-KR'
-  // Tier 3: TTS limited, fallback to pre-recorded MP3
-  | 'sq-AL' | 'bn-IN' | 'am-ET' | 'tl-PH' | 'vi-VN' | 'ur-PK';
-
-export type TtsTier = 'native' | 'fallback' | 'manual';
-
-export function getTtsTier(lang: TargetLang): TtsTier {
-  const tier1: TargetLang[] = ['it-IT','en-US','en-GB','es-ES','fr-FR','de-DE','pt-BR','pt-PT'];
-  const tier2: TargetLang[] = ['zh-CN','zh-TW','ar-SA','ar-EG','hi-IN','pa-IN','ro-RO','ru-RU','uk-UA','tr-TR','ja-JP','ko-KR'];
-  if (tier1.includes(lang)) return 'native';
-  if (tier2.includes(lang)) return 'fallback';
-  return 'manual';
-}
-
-/**
- * Display info per language — for the picker UI in factory/new
- */
-export const LANG_INFO: Record<TargetLang, {
-  flag: string;          // emoji flag for the picker
-  label_pt: string;      // shown to Edson in the picker
-  endonym: string;       // how the language calls itself (shown for confirmation)
-  rtl?: boolean;         // for the script preview UI
-}> = {
-  'it-IT':  { flag: '🇮🇹', label_pt: 'Italiano',                endonym: 'Italiano' },
-  'en-US':  { flag: '🇺🇸', label_pt: 'Inglês (americano)',      endonym: 'English' },
-  'en-GB':  { flag: '🇬🇧', label_pt: 'Inglês (britânico)',      endonym: 'English' },
-  'es-ES':  { flag: '🇪🇸', label_pt: 'Espanhol',                endonym: 'Español' },
-  'fr-FR':  { flag: '🇫🇷', label_pt: 'Francês',                 endonym: 'Français' },
-  'de-DE':  { flag: '🇩🇪', label_pt: 'Alemão',                  endonym: 'Deutsch' },
-  'pt-BR':  { flag: '🇧🇷', label_pt: 'Português (BR)',          endonym: 'Português' },
-  'pt-PT':  { flag: '🇵🇹', label_pt: 'Português (PT)',          endonym: 'Português' },
-  'zh-CN':  { flag: '🇨🇳', label_pt: 'Mandarim (simplificado)', endonym: '中文（简体）' },
-  'zh-TW':  { flag: '🇹🇼', label_pt: 'Mandarim (tradicional)',  endonym: '中文（繁體）' },
-  'ar-SA':  { flag: '🇸🇦', label_pt: 'Árabe (padrão)',          endonym: 'العربية', rtl: true },
-  'ar-EG':  { flag: '🇪🇬', label_pt: 'Árabe (egípcio)',         endonym: 'العربية', rtl: true },
-  'hi-IN':  { flag: '🇮🇳', label_pt: 'Hindi',                   endonym: 'हिन्दी' },
-  'pa-IN':  { flag: '🇮🇳', label_pt: 'Punjabi',                 endonym: 'ਪੰਜਾਬੀ' },
-  'ro-RO':  { flag: '🇷🇴', label_pt: 'Romeno',                  endonym: 'Română' },
-  'ru-RU':  { flag: '🇷🇺', label_pt: 'Russo',                   endonym: 'Русский' },
-  'uk-UA':  { flag: '🇺🇦', label_pt: 'Ucraniano',               endonym: 'Українська' },
-  'tr-TR':  { flag: '🇹🇷', label_pt: 'Turco',                   endonym: 'Türkçe' },
-  'ja-JP':  { flag: '🇯🇵', label_pt: 'Japonês',                 endonym: '日本語' },
-  'ko-KR':  { flag: '🇰🇷', label_pt: 'Coreano',                 endonym: '한국어' },
-  'sq-AL':  { flag: '🇦🇱', label_pt: 'Albanês',                 endonym: 'Shqip' },
-  'bn-IN':  { flag: '🇧🇩', label_pt: 'Bengali',                 endonym: 'বাংলা' },
-  'am-ET':  { flag: '🇪🇹', label_pt: 'Amárico',                 endonym: 'አማርኛ' },
-  'tl-PH':  { flag: '🇵🇭', label_pt: 'Filipino/Tagalo',         endonym: 'Tagalog' },
-  'vi-VN':  { flag: '🇻🇳', label_pt: 'Vietnamita',              endonym: 'Tiếng Việt' },
-  'ur-PK':  { flag: '🇵🇰', label_pt: 'Urdu',                    endonym: 'اردو', rtl: true },
-};
-
-export type Variant = {
-  key: string;
+export type ItalianVariant = {
+  /** Nome curto da variante em PT. Ex.: "Versão curta (lugar movimentado)" */
   label_pt: string;
-  /** Translated/adapted text for this language */
-  text: string;
+  /** Quando usar (PT). Opcional. */
   when_pt?: string;
+  /** Frase em italiano pra ler/improvisar com o dono. */
+  text: string;
 };
 
-export type StageScript = {
+export type StagePlaybook = {
   stage: Stage;
   order: number;
-  /** Title shown in operator UI (always PT) */
+  /** Título do card no operator UI (PT). */
   title_pt: string;
-  /** Coaching shown to Edson (always PT, language-agnostic) */
+  /** Coaching pro Edson — o que pensar/observar/fazer (PT). */
   coaching_pt: string;
-  /** Form fields the operator should fill at this stage */
+  /** Campos a preencher neste estágio (operator form). */
   fields?: string[];
-  /** Main script in the target language */
-  main?: string;
-  /** Alternative scripts for context-specific situations */
-  variants?: Variant[];
-  /** Label of the "next" button in the operator UI */
+  /** Label do botão de avanço (PT). */
   next_button_pt: string;
-  /** Whether stage allows skipping */
-  skippable?: boolean;
-  /** Optional pre-recorded audio URL (for Tier 3 languages where TTS is unreliable) */
-  audio_url?: string;
+  /** Sugestão de frase em italiano (cheat-sheet, opcional). */
+  italian_hint?: string;
+  /** Variantes pra contextos diferentes. */
+  italian_variants?: ItalianVariant[];
 };
 
-/**
- * Common Portuguese coaching shared across all target languages.
- * The pitch coaching for Edson doesn't depend on which language he's pitching in —
- * the structure of the sales conversation is universal; only the words spoken
- * to the owner change.
- */
-export const COMMON_COACHING_PT: Record<Stage, Pick<StageScript, 'title_pt' | 'coaching_pt' | 'fields' | 'next_button_pt'>> = {
+export const PIPELINE_PLAYBOOK: Record<Stage, StagePlaybook> = {
   approach: {
+    stage: 'approach',
+    order: 1,
     title_pt: '1. Abordagem',
     coaching_pt:
       'Espere o atendimento ficar livre. Faça contato visual antes de falar. Sorria. Não tem pressa.\n\n' +
-      'Toque o áudio. DEIXE O TELEFONE FALAR — sua pronúncia não-nativa pode minar a credibilidade. ' +
-      'Pra culturas asiáticas, oriente-se ao mais velho/sênior primeiro.',
+      'Lê a sugestão IT abaixo e improvisa com naturalidade — não decora.',
     next_button_pt: 'Aceitou ouvir → próximo',
+    italian_hint:
+      'Buongiorno, sono Edson, sono brasiliano ma vivo qui. Faccio una cosa che si chiama Factory: in dieci minuti, davanti a te, ti faccio vedere come sarebbe il sito web del tuo locale. Senza impegno, senza pagamento, niente. Se ti piace ne parliamo. Se no, prendo un caffè e ti saluto. Posso?',
+    italian_variants: [
+      {
+        label_pt: 'Versão curta (lugar movimentado)',
+        when_pt: 'Lugar cheio, dono tem 10 segundos',
+        text: 'Buongiorno, sono Edson. In dieci minuti ti faccio vedere come sarebbe il sito del tuo locale. Gratis, senza impegno. Posso?',
+      },
+      {
+        label_pt: 'Versão calorosa (trattoria familiar)',
+        when_pt: 'Trattoria/agriturismo, tom familiar funciona melhor',
+        text: 'Buongiorno, mi scusi il disturbo. Mi chiamo Edson, sono brasiliano. Aiuto i locali come il vostro a essere visibili online — turisti, clienti nuovi, quel tipo di cose. Se mi dà dieci minuti, le mostro qualcosa di concreto fatto sul vostro locale. Senza pagare niente, senza impegno. Le va?',
+      },
+    ],
   },
   consent: {
+    stage: 'consent',
+    order: 2,
     title_pt: '2. Consentimento',
     coaching_pt:
       'Antes de tirar foto do interior, do dono, ou usar o nome do estabelecimento, grave o consentimento.\n\n' +
-      'Toque o áudio em seguida pressione "🎙 Gravar consentimento". Peça pra ele dizer "sim" na própria língua dele ' +
-      '(sì / yes / 是的 / نعم / हाँ / etc).\n\n' +
-      'Esse arquivo te protege juridicamente. Não pule.',
+      'Pede pra ele dizer "sì" enquanto você grava (botão 🎙). Esse arquivo te protege juridicamente. Não pule.',
     next_button_pt: 'Consentimento gravado → próximo',
+    italian_hint:
+      'Allora, prima di iniziare, posso registrare un secondo che mi dai il permesso di fare delle foto e di usare il nome del tuo locale per la prova? Solo per essere a posto. Basta che dici "sì certo".',
   },
   capture: {
+    stage: 'capture',
+    order: 3,
     title_pt: '3. Coleta',
     coaching_pt:
       'Pergunte abertamente. Deixe ele falar.\n\n' +
@@ -159,30 +98,60 @@ export const COMMON_COACHING_PT: Record<Stage, Pick<StageScript, 'title_pt' | 'c
       '• Interior (com permissão)\n' +
       '• Dono atrás do balcão (alta conversão)\n' +
       '• Menu / vitrine (1-10 fotos)\n\n' +
-      'Botão verde "🎙 Voz do dono": peça 30s dele descrevendo o lugar — alimenta a tagline e vira persona do agente WhatsApp.\n\n' +
+      'Botão verde "🎙 Voz do dono": peça 30s dele descrevendo o lugar — alimenta a tagline.\n\n' +
       'Dados estruturados:\n' +
       '• Nome do estabelecimento\n' +
       '• Endereço\n' +
       '• P.IVA (delicado — pergunta no fim)\n' +
       '• Telefone / WhatsApp\n' +
-      '• **Email pessoal do dono** (CRÍTICO — pra ele receber magic link, recibo, suporte)\n' +
+      '• **Email pessoal do dono** (CRÍTICO — magic link, recibo, suporte)\n' +
       '• Horários\n' +
       '• Vibe (gelateria? caffetteria? ristorante? — pergunta direta)\n' +
-      '• Idiomas que o dono quer no SITE (italiano sempre, mais EN/DE/língua nativa pro nicho dele)\n\n' +
-      'O email é CHAVE — sem email correto, ele não recebe nada após o checkout. Confirma duas vezes a digitação. ' +
-      'Se ele tiver "info@negocio.it" e "marcopersonal@gmail.com", o admin é o pessoal, o info@ vai pro site público.',
+      '• Idiomas que o dono quer no SITE (italiano sempre, mais EN/DE)\n\n' +
+      'Confirma a digitação do email duas vezes. Se ele tiver "info@negocio.it" e "marcopersonal@gmail.com", o admin é o pessoal, o info@ vai pro site público.',
     fields: ['nome', 'indirizzo', 'p_iva', 'telefono', 'whatsapp', 'contact_email', 'public_email', 'orari', 'vibe', 'site_locales', 'photos', 'owner_voice'],
     next_button_pt: 'Coleta completa → processar',
+    italian_hint:
+      'Mi descrivi un attimo il tuo locale? Come lo presenteresti a un cliente nuovo che entra per la prima volta?',
+    italian_variants: [
+      {
+        label_pt: 'Confirma vibe',
+        text: 'Tu come ti descriveresti? Sei più una trattoria familiare, una caffetteria moderna, un wine bar...?',
+      },
+      {
+        label_pt: 'Horários',
+        text: 'Mi puoi dire gli orari di apertura, durante la settimana e nel weekend?',
+      },
+      {
+        label_pt: 'P.IVA (no fim)',
+        when_pt: 'Pergunta no fim, depois de criar rapport',
+        text: 'Per il sito mi serve la partita IVA, te la chiedo poi prima di pubblicare. Va bene?',
+      },
+      {
+        label_pt: 'Email do dono (CRÍTICO)',
+        when_pt: 'Confirma duas vezes a digitação',
+        text: "Mi serve la tua email per mandarti l'accesso al pannello e la ricevuta. Mi puoi dettarla? Lentamente, così non sbaglio.",
+      },
+      {
+        label_pt: 'Email público do negócio',
+        when_pt: 'Se houver info@/contatti@ separado',
+        text: "Hai un'email pubblica del locale, tipo info@ o contatti@? Quella va sul sito, la tua personale resta privata.",
+      },
+    ],
   },
   processing: {
+    stage: 'processing',
+    order: 4,
     title_pt: '4. Processando',
     coaching_pt:
       'Job rodando em background. Volta pra mesa, come/bebe.\n\n' +
       'ETA: 30-60s. Notificação push quando estiver pronto.\n\n' +
-      'Se der erro: app te avisa, dá pra tentar novamente sem perder dados.',
+      'Se der erro: app te avisa, dá pra tentar de novo sem perder dados.',
     next_button_pt: 'Aguardando job…',
   },
   ready: {
+    stage: 'ready',
+    order: 5,
     title_pt: '5. Pronto pra apresentar',
     coaching_pt:
       'Site gerado. Antes de mostrar:\n\n' +
@@ -193,14 +162,19 @@ export const COMMON_COACHING_PT: Record<Stage, Pick<StageScript, 'title_pt' | 'c
     next_button_pt: 'Vou apresentar agora',
   },
   present: {
+    stage: 'present',
+    order: 6,
     title_pt: '6. Apresentação',
     coaching_pt:
       'Entrega o celular na mão dele em modo paisagem. Deixa ele tocar, rolar, mexer. Não explica — deixa o produto falar.\n\n' +
-      'Depois do áudio: SILÊNCIO. Espera ele reagir. Quem fala primeiro perde força.\n\n' +
+      'Depois da frase: SILÊNCIO. Espera ele reagir. Quem fala primeiro perde força.\n\n' +
       'Linguagem corporal: sorriso + zoom em fotos = quente. Cara séria + telefone devolvido rápido = ainda dá pra recuperar com preço.',
     next_button_pt: 'Ele viu, vou pro preço',
+    italian_hint: 'Guarda cosa ho preparato per te. Prendilo, gioca con lui. Dimmi cosa ne pensi.',
   },
   pricing: {
+    stage: 'pricing',
+    order: 7,
     title_pt: '7. Preço',
     coaching_pt:
       '**Modelo v1: pacotes pré-pagos em dinheiro.** Cliente paga à vista, sem recurring, sem Stripe necessário.\n\n' +
@@ -208,58 +182,73 @@ export const COMMON_COACHING_PT: Record<Stage, Pick<StageScript, 'title_pt' | 'c
       '• 3 meses — €50 cash (entry-level, trial pago — €16,67/mês)\n' +
       '• 6 meses — €99 cash (sweet spot — €16,50/mês)\n' +
       '• **12 meses — €179 cash** ⭐ "scelta più popolare", custom domain incluso (€14,92/mês)\n\n' +
-      'Empiricamente espera 30% no 3mo, 50% no 6mo, 20% no 12mo. Cash médio por venda: ~€113.\n\n' +
-      'Variant `spinta_12mo`: oferece custom domain pra empurrar do 6mo pro 12mo. Use quando cliente abriu carteira sem hesitar.\n\n' +
-      'Variant `so_3mo_6mo`: esconde a opção 12 meses. Use com cliente cauteloso/primeiro contato com tech, evita susto.\n\n' +
-      'Cliente pediu feature avançada (custom domain, mais idiomas, reservas)? Use variant `upsell_growth` — Growth 6mo €170.\n\n' +
-      'Cliente é restaurante grande, multi-unidade, ou pediu integração? Pro 6mo €490 — só se ele puxar.\n\n' +
+      'Empiricamente espera 30% no 3mo, 50% no 6mo, 20% no 12mo. Cash médio: ~€113.\n\n' +
+      'Variantes (abaixo) cobrem cliente convicto, cliente cauteloso, upsell e voucher.\n\n' +
       'NUNCA dê desconto não solicitado. NUNCA prometa lifetime.\n\n' +
       '**Quando ele aceitar pagar:**\n' +
-      '1. Abre app, mostra checkboxes ToS/Privacy/DPA + **renúncia ao direito de arrependimento** (necessária pra cash sem refund obrigatório)\n' +
+      '1. Abre app, mostra checkboxes ToS/Privacy/DPA + **renúncia ao direito de arrependimento**\n' +
       '2. Recebe o dinheiro físico (conta na frente dele, ele conta de volta)\n' +
       '3. Toca "Confirma ricevuto in contanti" — gera recibo PDF e manda por WhatsApp/email\n' +
       '4. Site vai live na hora, válido por 3/6/12 meses conforme pacote\n' +
       '5. Sistema agenda emails de renovação 30/7/1 dias antes do vencimento',
     next_button_pt: 'Falei o preço',
+    italian_hint:
+      'Allora, sono tre opzioni semplici. Pacchetto tre mesi, cinquanta euro in contanti. Pacchetto sei mesi, novantanove euro tutto compreso, ti dimentichi del pagamento per sei mesi. Pacchetto dodici mesi, centosettantanove euro — è la scelta più popolare e ci metto dentro anche il dominio personalizzato. Tu cosa preferisci?',
+    italian_variants: [
+      {
+        label_pt: 'Empurra pra 12 meses',
+        when_pt: 'Cliente convicto, abriu carteira sem hesitar',
+        text: "Senti, se vai sui dodici mesi ti includo il dominio personalizzato — tipo trattoriadamarco.it. Vale quaranta euro l'anno, e il sito sembra molto più professionale. È quello che fa la differenza con Google.",
+      },
+      {
+        label_pt: 'Cliente cauteloso (esconde 12mo)',
+        when_pt: 'Hesitante, primeiro contato com tech',
+        text: 'Allora ti propongo due opzioni semplici: tre mesi a cinquanta euro per provare, o sei mesi a novantanove se ti senti tranquillo. Decidi tu.',
+      },
+      {
+        label_pt: 'Voucher Digitalizzazione',
+        when_pt: 'Pra Growth/Pro tier',
+        text: "Per i piani superiori c'è anche il Voucher Digitalizzazione, lo Stato copre la metà.",
+      },
+      {
+        label_pt: 'Upsell pra Growth',
+        when_pt: 'Pediu feature avançada (custom domain, mais idiomas)',
+        text: "Per quello che mi chiedi serve il piano Growth — sei mesi a centosettanta in contanti. Include dominio personalizzato, prenotazioni e fino a tre lingue.",
+      },
+      {
+        label_pt: 'Âncora da concorrência',
+        when_pt: 'ANTES do preço — ancora valor',
+        text: "Guarda, ho controllato i 5 locali più vicini al tuo. Nessuno ha un sito decente. Per cinquanta euro provi tre mesi. Se non funziona, non rinnovi.",
+      },
+    ],
   },
   close: {
+    stage: 'close',
+    order: 8,
     title_pt: '8. Fechamento',
     coaching_pt:
       'Pergunta DIRETA. Silêncio depois — não preencha o vazio.\n\n' +
       '✅ COMPROU (cash) → checkboxes ToS/Privacy/DPA → recebe dinheiro → "Confirmar recebimento" → recibo PDF via WhatsApp\n' +
-      '✅ COMPROU (Stripe link) → manda link via WhatsApp/email, site vai live quando webhook confirmar\n' +
       '🤔 VAI PENSAR → preview 30 dias, follow-up automático em 3 e 14 dias\n' +
       '❌ RECUSOU → registra motivo, sai elegante (pode te indicar pro vizinho)\n\n' +
       'Não tente reverter um "não" forte.',
     next_button_pt: 'Registrar resultado',
+    italian_hint: 'Allora, lo prendi? Posso prendere il pagamento adesso?',
+    italian_variants: [
+      {
+        label_pt: 'Vai pensar',
+        text: "Tranquillo, pensaci. Ti lascio il link del preview, ce l'hai per 30 giorni. Ti scrivo io fra qualche giorno per vedere come va. Va bene?",
+      },
+      {
+        label_pt: 'Saída elegante',
+        text: 'Nessun problema, grazie comunque del tempo. Se cambia idea, hai il mio numero. Buona giornata.',
+      },
+    ],
   },
 };
 
-/**
- * Registry of all language-specific script files.
- * Each file exports an array of StageScript matching the COMMON_COACHING_PT.
- */
-export const SCRIPTS_REGISTRY: Partial<Record<TargetLang, StageScript[]>> = {
-  'it-IT': italianScripts,
-  'en-US': englishScripts,
-  'zh-CN': mandarinScripts,
-  'ar-SA': arabicScripts,
-  'hi-IN': hindiScripts,
-  // others added as native speakers review them
-};
-
-export function getScripts(lang: TargetLang): StageScript[] {
-  const scripts = SCRIPTS_REGISTRY[lang];
-  if (!scripts) {
-    throw new Error(`No scripts registered for ${lang}. Add ./scripts/${lang}.ts and register in SCRIPTS_REGISTRY.`);
-  }
-  return scripts;
-}
-
-export function getStage(lang: TargetLang, stage: Stage): StageScript {
-  const s = getScripts(lang).find(x => x.stage === stage);
-  if (!s) throw new Error(`Stage ${stage} missing for ${lang}`);
-  return s;
+export function getStagePlaybook(stage: Stage): StagePlaybook {
+  return PIPELINE_PLAYBOOK[stage];
 }
 
 export function nextStage(stage: Stage): Stage | null {
@@ -268,17 +257,16 @@ export function nextStage(stage: Stage): Stage | null {
   return PIPELINE_STAGES[idx + 1];
 }
 
-export const SUPPORTED_LANGS_FOR_PITCH: TargetLang[] = Object.keys(SCRIPTS_REGISTRY) as TargetLang[];
-
 export const OUTCOME_REASONS_PT = [
   { key: 'price', label: 'Achou caro' },
   { key: 'no_decision_maker', label: 'Não é o decisor (sócio, esposa, etc.)' },
   { key: 'already_has_site', label: 'Já tem site' },
   { key: 'distrusts_tech', label: 'Desconfia de tecnologia' },
-  { key: 'language_barrier', label: 'Barreira de idioma forte demais (TTS falhou?)' },
-  { key: 'cultural_mismatch', label: 'Adaptação cultural do pitch ficou estranha' },
+  { key: 'language_barrier', label: 'Barreira de idioma forte demais' },
   { key: 'timing', label: 'Não é o momento (em reforma, mudança, etc.)' },
   { key: 'no_p_iva', label: 'Sem P.IVA / informal' },
   { key: 'closed_to_pitch', label: 'Não quis ouvir / ocupado' },
   { key: 'other', label: 'Outro' },
-];
+] as const;
+
+export type OutcomeReasonKey = (typeof OUTCOME_REASONS_PT)[number]['key'];

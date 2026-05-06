@@ -6,13 +6,13 @@
 
 ---
 
-## TL;DR (estado em 2026-05-05)
+## TL;DR (estado em 2026-05-06)
 
-- Pre-flight Supabase ✅ (projeto `factory` em Frankfurt, schema deployado, user `limadevbtc@proton.me` super_admin em `factory-edson`)
-- Scaffold ❌ extraído parcialmente, precisa T0 cleanup antes de T1
-- Próximo passo: **T0** (auditoria + cleanup do scaffold) → **T1** (foundation)
+- T0 ✅, T1 ✅, T2 ✅ (site público vibe-aware, multi-tenant, allergens, filters, prenota condicional, contatti, cookie banner, /api/consents+/api/bookings, seed 2 tenants)
+- Próximo passo: **T3** (menu extraction via Claude vision)
 - Modelo v1: **cash-only**, 3/6/12 meses prepago (€50/€99/€179)
 - Stripe: **diferido pra T7.5** (pós-MEI/CNPJ + Stripe Standard ativo)
+- Multilíngue TTS: **removido em v1** (só PT coaching + IT cheat-sheet inline). Diáspora play deferido, volta como tarefa nova.
 - Beachhead Cosenza: gelateria + caffetteria primeiro
 
 ---
@@ -46,7 +46,7 @@ Estas regras sobrescrevem qualquer decisão local. Ler antes de cada tarefa.
 | Camada | Path | Idioma |
 |---|---|---|
 | Operator UI | `/app/*` (exceto `/app/dashboard/*`) | **pt-BR** sempre |
-| TTS scripts pro cliente | `src/lib/scripts/{lang}.ts` | idioma do dono escolhido por sessão (default `it-IT`) |
+| Cheat-sheet IT pro pitch | `src/lib/scripts/index.ts` (`italian_hint` por stage) | italiano (texto plano dentro de cards PT, sem TTS) |
 | Owner dashboard | `/app/dashboard/[tenantId]/*` | `tenants.owner_locale` (default `it`) |
 | Public site | `/sites/[slug]/*` | `tenants.default_locale` + `enabled_locales` |
 | Marketing | `/marketing/*` | `it` (mercado-alvo é Itália) |
@@ -429,16 +429,16 @@ Nenhuma.
 
 ## T4 — Pipeline stages 1-3
 
-**Objetivo**: UI mobile-first das 3 primeiras etapas: approach → consent → capture. PT coaching + TTS no idioma do dono + form de captura.
+**Objetivo**: UI mobile-first das 3 primeiras etapas: approach → consent → capture. PT coaching com cheat-sheet IT inline + form de captura. Italian-only em v1 (sem language picker, sem TTS).
 
 **Dependências**: T1
 
 ### Subtarefas
 
 - `src/app/app/pipeline/page.tsx`: dashboard com pitches em curso + KPIs (won/lost/thinking) + "+ Novo pitch"
-- `src/app/app/pipeline/new/page.tsx`: cria `pitch_session` com `target_lang` selecionado (picker usando `LANG_INFO`), `current_stage = 'approach'`
+- `src/app/app/pipeline/new/page.tsx`: cria `pitch_session` com `target_lang = 'it-IT'` hard-coded em v1, `current_stage = 'approach'`
 - `src/app/app/pipeline/[sessionId]/[stage]/page.tsx`: roteador de stage
-- `src/components/pipeline/ScriptCard.tsx`: PT coaching + `<SpeakButton>` com texto IT/escolhido + variant picker
+- `src/components/pipeline/ScriptCard.tsx`: renderiza `coaching_pt` + `italian_hint` (texto IT plano, selecionável) + `italian_variants` (collapse com label_pt + texto IT)
 - `src/components/pipeline/StageHeader.tsx`: progresso visual (1/8 ... 3/8), botão voltar
 - `src/components/pipeline/RecordButton.tsx`: grava `MediaRecorder`, sobe pra R2, salva URL em `pitch_sessions.consent_audio_url`
 - `src/components/pipeline/PhotoUploader.tsx`: input `capture="environment"` + multi, sobe pra R2
@@ -447,13 +447,13 @@ Nenhuma.
 
 ### Schema delta
 
-Nenhuma.
+Nenhuma. `pitch_sessions.target_lang` continua coluna textual mas em v1 sempre `'it-IT'`.
 
 ### Acceptance
 
-- Edson cria sessão, escolhe idioma it-IT
-- Approach: vê PT coaching, toca 🔊, áudio italiano sai do telefone, clica "próximo"
-- Consent: toca 🔊, grava 5s de áudio do dono dizendo "sì", áudio sobe pra R2, URL salva
+- Edson cria sessão (sem picker de idioma), avança pra approach
+- Approach: vê coaching PT + texto IT visível pra ler ao dono + 2 variantes em collapse, clica "próximo"
+- Consent: lê coaching PT + frase IT, grava 5s de áudio do dono dizendo "sì", áudio sobe pra R2
 - Capture: preenche form, anexa 3 fotos do menu, grava 30s da voz do dono
 - Tudo persiste em `pitch_sessions` + `tenants` (draft)
 - Mobile (iPhone real) flow funciona end-to-end
@@ -462,11 +462,10 @@ Nenhuma.
 
 - iOS Safari: `MediaRecorder` aceita só formatos limitados — usar `audio/mp4` com fallback
 - Upload de foto grande em rede ruim — exibir progresso, retry on fail
-- TTS pode "engasgar" na primeira chamada (primeira `speechSynthesis.speak` precisa de gesture do user) — `SpeakButton` já trata via click
 
 ### Tempo estimado
 
-6-8h focado.
+5-7h focado (sem SpeakButton, ~1h a menos que estimativa anterior).
 
 ---
 
@@ -739,7 +738,7 @@ Coisas pra alinhar com Edson antes ou durante a build.
 | 6 | `factory_jobs` worker: cron Vercel vs invocação direta | T5 | invocação direta pós-capture (free tier compatible) |
 | 7 | Plausible vs sem analytics em v1 | T2 | sem analytics até T2 done; adicionar opcional depois |
 | 8 | Cookie banner: shadcn ou custom | T2 | custom (1 component, 100 linhas) |
-| 9 | TTS Tier 3 (sq-AL etc.): MP3s pré-gerados ou pular tier 3 em v1 | T4 | pular tier 3 em v1 (mercado Calabria é IT-pesado, raro precisar) |
+| 9 | ~~TTS Tier 3~~ — REMOVIDO: TTS multilíngue inteiro deferido | — | v1 = só italiano em texto, sem speech synthesis |
 | 10 | Login persistido: Supabase default (1 semana) ou estender | T1 | default Supabase |
 
 ---

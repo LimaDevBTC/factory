@@ -10,7 +10,9 @@ const WHATSAPP_E164 = '393331234567'; // placeholder até número operacional
 /**
  * Quando o magic link do Supabase volta pra Site URL (raiz do projeto) em vez
  * do `emailRedirectTo`, o `?code=` aterra aqui no marketing. Forwardamos pro
- * /callback no domínio do app — onde o cookie da session pertence.
+ * /callback no domínio do app onde o PKCE code_verifier (cookie sb-*) está
+ * guardado — caso contrário exchangeCodeForSession falha com
+ * "PKCE code verifier not found in storage".
  */
 function maybeForwardAuthCode(searchParams: Record<string, string | string[] | undefined>) {
   const code = typeof searchParams.code === 'string' ? searchParams.code : null;
@@ -19,10 +21,19 @@ function maybeForwardAuthCode(searchParams: Record<string, string | string[] | u
   const h = headers();
   const rawHost = h.get('host') ?? '';
   const proto = h.get('x-forwarded-proto') ?? 'http';
-  const rootDomain = h.get('x-org-root-domain') ?? rawHost.replace(/:\d+$/, '');
   const port = rawHost.match(/:(\d+)$/)?.[1];
-  const appHost = `app.${rootDomain}${port ? `:${port}` : ''}`;
-  redirect(`${proto}://${appHost}/callback?code=${encodeURIComponent(code)}`);
+
+  let target: string;
+  if (process.env.NODE_ENV === 'development') {
+    // Em dev o cookie do PKCE foi setado em app.lvh.me (onde signInWithOtp
+    // rodou). app.localhost é outro domain — cookies não viajam. Hardcode
+    // lvh.me como o canônico dev.
+    target = `${proto}://app.lvh.me${port ? `:${port}` : ''}/callback`;
+  } else {
+    const rootDomain = h.get('x-org-root-domain') ?? rawHost.replace(/:\d+$/, '');
+    target = `${proto}://app.${rootDomain}/callback`;
+  }
+  redirect(`${target}?code=${encodeURIComponent(code)}`);
 }
 
 export default function MarketingHome({

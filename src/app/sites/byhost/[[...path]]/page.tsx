@@ -1,9 +1,25 @@
 import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { getTenantByCustomDomain } from '@/lib/tenant';
 
 export const dynamic = 'force-dynamic';
 
-export default async function CustomDomainPlaceholder() {
+export default async function CustomDomainPlaceholder({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
+  // Em dev, magic link do Supabase pode aterrar aqui (Site URL = localhost
+  // ou 127.0.0.1) com `?code=`. Forward pro callback no domínio dos cookies
+  // PKCE. Mesmo padrão da marketing/page.tsx.
+  const code = typeof searchParams.code === 'string' ? searchParams.code : null;
+  if (code && process.env.NODE_ENV === 'development') {
+    const h = headers();
+    const proto = h.get('x-forwarded-proto') ?? 'http';
+    const port = (h.get('host') ?? '').match(/:(\d+)$/)?.[1] ?? '3000';
+    redirect(`${proto}://app.lvh.me:${port}/callback?code=${encodeURIComponent(code)}`);
+  }
+
   const headerList = headers();
   const host = headerList.get('x-custom-domain');
 

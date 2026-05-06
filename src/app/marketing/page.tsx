@@ -1,11 +1,37 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { DevBanner } from '@/components/DevBanner';
 import { CopyEmailCta } from '@/components/marketing/CopyEmailCta';
 
 const CONTACT_EMAIL = 'ciao@factory.app';
 const WHATSAPP_E164 = '393331234567'; // placeholder até número operacional
 
-export default function MarketingHome() {
+/**
+ * Quando o magic link do Supabase volta pra Site URL (raiz do projeto) em vez
+ * do `emailRedirectTo`, o `?code=` aterra aqui no marketing. Forwardamos pro
+ * /callback no domínio do app — onde o cookie da session pertence.
+ */
+function maybeForwardAuthCode(searchParams: Record<string, string | string[] | undefined>) {
+  const code = typeof searchParams.code === 'string' ? searchParams.code : null;
+  if (!code) return;
+
+  const h = headers();
+  const rawHost = h.get('host') ?? '';
+  const proto = h.get('x-forwarded-proto') ?? 'http';
+  const rootDomain = h.get('x-org-root-domain') ?? rawHost.replace(/:\d+$/, '');
+  const port = rawHost.match(/:(\d+)$/)?.[1];
+  const appHost = `app.${rootDomain}${port ? `:${port}` : ''}`;
+  redirect(`${proto}://${appHost}/callback?code=${encodeURIComponent(code)}`);
+}
+
+export default function MarketingHome({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
+  maybeForwardAuthCode(searchParams);
+
   return (
     <>
       <DevBanner />

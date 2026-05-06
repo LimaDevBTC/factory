@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 export async function POST(request: NextRequest) {
   const supabase = createClient();
   await supabase.auth.signOut();
-  const origin = `${new URL(request.url).protocol}//${new URL(request.url).host}`;
-  return NextResponse.redirect(`${origin}/login`, { status: 303 });
+  const url = new URL(request.url);
+  const host = request.headers.get('host') ?? url.host;
+  const proto = request.headers.get('x-forwarded-proto') ?? url.protocol.replace(':', '');
+  return NextResponse.redirect(`${proto}://${host}/login`, { status: 303 });
 }

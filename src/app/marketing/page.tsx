@@ -1,4 +1,8 @@
 import { DevBanner } from '@/components/DevBanner';
+import { CopyEmailCta } from '@/components/marketing/CopyEmailCta';
+
+const CONTACT_EMAIL = 'ciao@factory.app';
+const WHATSAPP_E164 = '393331234567'; // placeholder até Edson ter número operacional
 
 export default function MarketingHome() {
   return (
@@ -14,12 +18,16 @@ export default function MarketingHome() {
               Il tuo locale online in dieci minuti. Trattorie, gelaterie, caffetterie,
               enoteche — un sito multilingue, GDPR-compliant, pronto al volo.
             </p>
-            <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <div className="flex flex-col items-center gap-4">
+              <p className="text-sm text-muted-foreground">Scrivici per una demo</p>
+              <CopyEmailCta email={CONTACT_EMAIL} />
               <a
-                href="mailto:ciao@factory.app?subject=Demo%20Factory"
-                className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-6 text-base font-medium text-primary-foreground shadow-sm transition hover:opacity-90"
+                href={`https://wa.me/${WHATSAPP_E164}?text=${encodeURIComponent('Ciao! Vorrei una demo di Factory.')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm underline-offset-4 hover:underline"
               >
-                Richiedi una demo
+                oppure su WhatsApp
               </a>
             </div>
           </div>

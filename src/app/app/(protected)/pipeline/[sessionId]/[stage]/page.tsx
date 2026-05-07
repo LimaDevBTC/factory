@@ -1,4 +1,6 @@
-import { notFound, redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentUserOrgMembership } from '@/lib/tenant';
 import { PIPELINE_STAGES, PIPELINE_PLAYBOOK, type Stage } from '@/lib/scripts';
@@ -17,24 +19,36 @@ function isStage(s: string): s is Stage {
 
 export default async function StagePage({
   params,
+  searchParams,
 }: {
   params: { sessionId: string; stage: string };
+  searchParams: Record<string, string | string[] | undefined>;
 }) {
-  if (!isStage(params.stage)) notFound();
+  // Em vez de notFound() (que cai pro Next 404 default), renderiza painel de
+  // erro PT — facilita diagnóstico se o redirect do action mandar pra path
+  // inesperado.
+  if (!isStage(params.stage)) {
+    return <ErrorPanel reason={`Stage "${params.stage}" não existe.`} sessionId={params.sessionId} />;
+  }
   const stage = params.stage as Stage;
 
   const session = await getCurrentUserOrgMembership();
   if (!session) return null;
 
   const supabase = createAdminClient();
-  const { data: pitch } = await supabase
+  const { data: pitch, error: pitchErr } = await supabase
     .from('pitch_sessions')
     .select('*')
     .eq('id', params.sessionId)
     .eq('operator_id', session.user.id)
     .maybeSingle();
 
-  if (!pitch) notFound();
+  if (pitchErr) {
+    return <ErrorPanel reason={`Erro DB: ${pitchErr.message}`} sessionId={params.sessionId} />;
+  }
+  if (!pitch) {
+    return <ErrorPanel reason="Pitch session não encontrada (ou não é tua)." sessionId={params.sessionId} />;
+  }
   const pitchSession = pitch as PitchSession;
 
   // Mantém URL alinhada ao stage atual (evita confusão se o user voltou pelo
@@ -44,10 +58,17 @@ export default async function StagePage({
   }
 
   const playbook = PIPELINE_PLAYBOOK[stage];
+  const errorParam = typeof searchParams.error === 'string' ? searchParams.error : null;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6 pb-32 sm:py-10">
       <StageHeader sessionId={pitchSession.id} stage={stage} />
+
+      {errorParam && (
+        <div className="mt-4 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+          {decodeURIComponent(errorParam)}
+        </div>
+      )}
 
       <div className="mt-6 space-y-5">
         <ScriptCard playbook={playbook} />
@@ -61,7 +82,7 @@ export default async function StagePage({
         )}
       </div>
 
-      {/* Approach é só ScriptCard + advance. Outros stages têm form/component próprio que faz o advance. */}
+      {/* Approach é só ScriptCard + advance. Outros stages têm form próprio que faz o advance. */}
       {stage === 'approach' && (
         <div className="mt-6">
           <AdvanceButton
@@ -72,12 +93,39 @@ export default async function StagePage({
         </div>
       )}
 
-      {/* Outras stages (processing/ready/present/pricing/close) ainda não implementadas — T5+T6 */}
+      {/* processing/ready/present/pricing/close → T5/T6. Mostra placeholder + botão de voltar pra capture. */}
       {!['approach', 'consent', 'capture'].includes(stage) && (
-        <div className="mt-6 rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-          Stage <strong>{stage}</strong> é entregue em T5/T6. Em construção.
+        <div className="mt-6 space-y-3">
+          <div className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+            Stage <strong>{playbook.title_pt}</strong> ainda não implementada — entregue em T5/T6.
+          </div>
+          <Link
+            href="/pipeline"
+            className="block text-center text-xs underline-offset-2 hover:underline"
+          >
+            Voltar pro pipeline
+          </Link>
         </div>
       )}
+    </div>
+  );
+}
+
+function ErrorPanel({ reason, sessionId }: { reason: string; sessionId: string }) {
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-12">
+      <Link
+        href="/pipeline"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden />
+        <span>Pipeline</span>
+      </Link>
+      <div className="mt-6 rounded-md border border-destructive/40 bg-destructive/5 p-5 text-sm">
+        <p className="font-medium text-destructive">Erro na pipeline stage</p>
+        <p className="mt-1 text-foreground">{reason}</p>
+        <p className="mt-3 font-mono text-xs text-muted-foreground">session: {sessionId}</p>
+      </div>
     </div>
   );
 }

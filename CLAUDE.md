@@ -703,7 +703,7 @@ T1 (Foundation)
 - `/app/pipeline` placeholder (portuguese)
 - `/sites/[slug]` placeholder (italian "in costruzione")
 - `pnpm build && lint && typecheck` all green
-- Acceptance: routes work on `lvh.me:3000`, login flow completes, schema deployed
+- Acceptance: routes work on `lvh.me:3001`, login flow completes, schema deployed
 
 **T2 — Public site template** (~6-10h)
 - Single vibe-aware template at `/sites/[slug]/*`

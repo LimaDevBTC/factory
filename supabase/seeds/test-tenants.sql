@@ -3,8 +3,8 @@
 -- Run after the main schema is deployed. Idempotent via DO block + ON CONFLICT.
 --
 -- Local dev URLs (lvh.me resolves any subdomain → 127.0.0.1):
---   http://da-luigi.lvh.me:3000          → trattoria
---   http://gelateria-bergamotto.lvh.me:3000  → gelateria
+--   http://da-luigi.lvh.me:3001          → trattoria
+--   http://gelateria-bergamotto.lvh.me:3001  → gelateria
 --
 -- Run via Supabase SQL editor or:
 --   psql "$SUPABASE_DB_URL" -f supabase/seeds/test-tenants.sql

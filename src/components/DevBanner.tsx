@@ -9,7 +9,7 @@ export function DevBanner() {
 
   const rawHost = headers().get('host') ?? '';
   const host = rawHost.replace(/:\d+$/, '');
-  const port = rawHost.match(/:(\d+)$/)?.[1] ?? '3000';
+  const port = rawHost.match(/:(\d+)$/)?.[1] ?? '3001';
 
   // Sempre usar lvh.me pra atalhos: subdomínios de `localhost` não
   // resolvem em todos os browsers (Firefox precisa /etc/hosts).

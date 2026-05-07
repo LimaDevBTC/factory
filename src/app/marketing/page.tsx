@@ -65,7 +65,7 @@ export default function MarketingHome({
 
             <div className="flex flex-col items-center gap-3">
               <Link
-                href="http://app.lvh.me:3000/login"
+                href={process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/login` : 'http://app.lvh.me:3001/login'}
                 className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-6 text-base font-medium text-primary-foreground shadow-sm transition hover:opacity-90"
               >
                 Entrar como operador

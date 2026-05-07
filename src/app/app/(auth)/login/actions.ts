@@ -26,7 +26,7 @@ export async function sendMagicLinkAction(email: string): Promise<ActionResult> 
 
   const h = headers();
   const proto = h.get('x-forwarded-proto') ?? 'http';
-  const host = h.get('host') ?? 'app.lvh.me:3000';
+  const host = h.get('host') ?? 'app.lvh.me:3001';
   const redirect = `${proto}://${host}/callback`;
 
   const supabase = createClient();

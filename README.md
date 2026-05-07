@@ -43,9 +43,9 @@ cp .env.example .env.local   # se ainda não tem
 pnpm dev
 
 # URLs:
-#   http://lvh.me:3000                    → marketing (it)
-#   http://app.lvh.me:3000                → SaaS app (login pt)
-#   http://<slug>.lvh.me:3000             → site tenant (it)
+#   http://lvh.me:3001                    → marketing (pt-BR + bloco IT)
+#   http://app.lvh.me:3001                → SaaS app (login pt)
+#   http://<slug>.lvh.me:3001             → site tenant (it)
 ```
 
 ---

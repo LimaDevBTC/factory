@@ -228,9 +228,9 @@ Lista Stripe como prereq, fala de Cloudflare for SaaS — atualizar pra refletir
 
 #### E. Middleware integration check
 - Verificar `middleware.ts` da raiz funciona com as rotas:
-  - `lvh.me:3000` → `/marketing`
-  - `app.lvh.me:3000` → `/app/login` (porque sem auth)
-  - `qualquercoisa.lvh.me:3000` → `/sites/qualquercoisa` (renderiza 404 italiano)
+  - `lvh.me:3001` → `/marketing`
+  - `app.lvh.me:3001` → `/app/login` (porque sem auth)
+  - `qualquercoisa.lvh.me:3001` → `/sites/qualquercoisa` (renderiza 404 italiano)
 - Sem mudanças no middleware se possível
 - **Commit**: `chore(t1-e): verify middleware routes`
 
@@ -269,13 +269,13 @@ Nenhuma. Schema já tá deployado.
 ### Acceptance (manual, antes de declarar T1 done)
 
 - `pnpm dev` boota sem erro
-- `http://lvh.me:3000` → marketing IT
-- `http://app.lvh.me:3000` → redirect login
+- `http://lvh.me:3001` → marketing IT
+- `http://app.lvh.me:3001` → redirect login
 - Login PT, email não-whitelisted → erro PT
 - Email whitelisted → magic link enviado (ver Supabase auth logs)
 - Click no link → redirect `/app/pipeline` com email + Sair button
 - Logout → volta pra login
-- `http://qualquercoisa.lvh.me:3000` → 404 IT
+- `http://qualquercoisa.lvh.me:3001` → 404 IT
 - Manifest válido em DevTools → Application
 - iPhone Safari → "Add to Home Screen" cria ícone Factory
 - `pnpm build && pnpm typecheck && pnpm lint` verde
@@ -359,7 +359,7 @@ Nenhuma. Schema já tem tudo (categorias, items, allergens, hours_json, brand co
 
 ### Acceptance
 
-- Tenant seed `<slug>.lvh.me:3000` renderiza home → menu → contatti
+- Tenant seed `<slug>.lvh.me:3001` renderiza home → menu → contatti
 - Vibe gelateria não mostra `prenota` (rota 404)
 - Vibe trattoria mostra `prenota` e formulário posta sem erro
 - Allergen filter funciona, allergens badges aparecem nos itens
@@ -593,7 +593,7 @@ Nenhuma. Tudo já tem coluna no schema.
 - Email chega em < 30s no email do dono
 - PDF acessível no link do email
 - `withdrawal_window_ends_at` = `cash_collected_at + 14 dias`
-- Site live em `<slug>.lvh.me:3000` (dev) com dados reais
+- Site live em `<slug>.lvh.me:3001` (dev) com dados reais
 
 ### Riscos
 
@@ -655,7 +655,7 @@ Nenhuma.
 
 - Coletar 4 menus reais de Cosenza (1 gelateria, 1 caffetteria, 1 trattoria, 1 enoteca) — pode ser via foto enviada por amigo local OU encontrado online (sites de TripAdvisor que mostram menu)
 - Rodar cada um pelo factory: capture → process → ready → present → close (won simulado)
-- Resultado: 4 sites live em `<slug>.lvh.me:3000` ou `<slug>.factory.app` se já deployado
+- Resultado: 4 sites live em `<slug>.lvh.me:3001` ou `<slug>.factory.app` se já deployado
 - Polish: corrigir traduções estranhas, ajustar CSS de vibes específicos
 - Practice pitch: cronometrar do "facciamolo" até site live — meta < 10min
 - Documentar bugs encontrados, abrir issues, fix os bloqueantes
@@ -747,10 +747,10 @@ Coisas pra alinhar com Edson antes ou durante a build.
 
 ### URLs locais
 
-- Marketing: `http://lvh.me:3000`
-- App: `http://app.lvh.me:3000`
-- Tenant: `http://<slug>.lvh.me:3000`
-- API: `http://lvh.me:3000/api/*`
+- Marketing: `http://lvh.me:3001`
+- App: `http://app.lvh.me:3001`
+- Tenant: `http://<slug>.lvh.me:3001`
+- API: `http://lvh.me:3001/api/*`
 
 ### Comandos
 

@@ -16,7 +16,7 @@ export default async function CustomDomainPlaceholder({
   if (code && process.env.NODE_ENV === 'development') {
     const h = headers();
     const proto = h.get('x-forwarded-proto') ?? 'http';
-    const port = (h.get('host') ?? '').match(/:(\d+)$/)?.[1] ?? '3000';
+    const port = (h.get('host') ?? '').match(/:(\d+)$/)?.[1] ?? '3001';
     redirect(`${proto}://app.lvh.me:${port}/callback?code=${encodeURIComponent(code)}`);
   }
 
@@ -59,7 +59,7 @@ export default async function CustomDomainPlaceholder({
 }
 
 function DevHelp({ host }: { host: string | null }) {
-  const port = '3000';
+  const port = '3001';
   const root = (process.env.KNOWN_ROOT_DOMAINS ?? 'lvh.me')
     .split(',')
     .map((d) => d.trim())

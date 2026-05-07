@@ -24,7 +24,7 @@ export default async function MenuPage({
   if (!org) notFound();
 
   const tenant = await getTenantBySlug(org.id, params.slug);
-  if (!tenant || tenant.status !== 'live') notFound();
+  if (!tenant) notFound();
 
   const locale = resolveSiteLocale(tenant);
   const messages = getMessages(locale);

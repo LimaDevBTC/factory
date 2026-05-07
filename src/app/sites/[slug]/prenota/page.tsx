@@ -16,7 +16,7 @@ export default async function PrenotaPage({ params }: { params: { slug: string }
   if (!org) notFound();
 
   const tenant = await getTenantBySlug(org.id, params.slug);
-  if (!tenant || tenant.status !== 'live') notFound();
+  if (!tenant) notFound();
 
   const vibe = VIBE_CONFIG[tenant.vibe];
   if (!vibe?.takesReservations) notFound();

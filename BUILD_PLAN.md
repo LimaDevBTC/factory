@@ -8,8 +8,8 @@
 
 ## TL;DR (estado em 2026-05-06)
 
-- T0 ✅, T1 ✅, T2 ✅, T4 ✅ (pipeline list + KPIs, /new, stage router, ScriptCard + IT cheat-sheet, RecordButton/PhotoUploader, capture form com upsert tenant + Supabase Storage)
-- Próximo passo: **T3** (menu extraction via Claude vision) e/ou **T5** (processing + ready + present)
+- T0 ✅, T1 ✅, T2 ✅, T3 ✅, T4 ✅, T5 ✅ (Claude vision menu extraction via factory_jobs, processing/ready/present stages com poller + ItemReviewList + iframe preview com token via cookie persistente)
+- Próximo passo: **T6** (pricing + close) → **T7** (cash close + welcome email)
 - Modelo v1: **cash-only**, 3/6/12 meses prepago (€50/€99/€179)
 - Stripe: **diferido pra T7.5** (pós-MEI/CNPJ + Stripe Standard ativo)
 - Multilíngue TTS: **removido em v1** (só PT coaching + IT cheat-sheet inline). Diáspora play deferido, volta como tarefa nova.

@@ -10,6 +10,9 @@ import { ScriptCard } from '@/components/pipeline/ScriptCard';
 import { AdvanceButton } from '@/components/pipeline/AdvanceButton';
 import { ConsentStage } from './ConsentStage';
 import { CaptureStage } from './CaptureStage';
+import { ProcessingStage } from './ProcessingStage';
+import { ReadyStage } from './ReadyStage';
+import { PresentStage } from './PresentStage';
 
 export const dynamic = 'force-dynamic';
 
@@ -80,6 +83,18 @@ export default async function StagePage({
         {stage === 'capture' && (
           <CaptureStage session={pitchSession} />
         )}
+
+        {stage === 'processing' && (
+          <ProcessingStage session={pitchSession} />
+        )}
+
+        {stage === 'ready' && (
+          <ReadyStage session={pitchSession} />
+        )}
+
+        {stage === 'present' && (
+          <PresentStage session={pitchSession} />
+        )}
       </div>
 
       {/* Approach é só ScriptCard + advance. Outros stages têm form próprio que faz o advance. */}
@@ -93,11 +108,11 @@ export default async function StagePage({
         </div>
       )}
 
-      {/* processing/ready/present/pricing/close → T5/T6. Mostra placeholder + botão de voltar pra capture. */}
-      {!['approach', 'consent', 'capture'].includes(stage) && (
+      {/* pricing/close → T6 (entregues separado). */}
+      {(stage === 'pricing' || stage === 'close') && (
         <div className="mt-6 space-y-3">
           <div className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            Stage <strong>{playbook.title_pt}</strong> ainda não implementada — entregue em T5/T6.
+            Stage <strong>{playbook.title_pt}</strong> ainda não implementada — entregue em T6.
           </div>
           <Link
             href="/pipeline"

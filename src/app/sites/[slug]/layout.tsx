@@ -1,4 +1,4 @@
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { Header } from '@/components/site/Header';
 import { Footer } from '@/components/site/Footer';
@@ -11,6 +11,7 @@ import {
 import { getOrganizationByRootDomain, getTenantBySlug } from '@/lib/tenant';
 import { pairingForTenant, renderTenantStyle } from '@/lib/branding';
 import { pairingClassNames } from '@/lib/fonts';
+import { isValidPreviewToken, PREVIEW_COOKIE_PREFIX } from '@/lib/preview';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,7 +31,15 @@ export default async function TenantLayout({
   if (!org) notFound();
 
   const tenant = await getTenantBySlug(org.id, params.slug);
-  if (!tenant || tenant.status !== 'live') notFound();
+  if (!tenant) notFound();
+
+  if (tenant.status !== 'live') {
+    // Permite preview de drafts/suspended quando há um preview token válido
+    // (settado via middleware quando ?preview= aparece na URL).
+    const token = cookies().get(PREVIEW_COOKIE_PREFIX + params.slug)?.value;
+    const allowed = token ? await isValidPreviewToken(token, tenant.id) : false;
+    if (!allowed) notFound();
+  }
 
   const locale = resolveSiteLocale(tenant);
   const messages = getMessages(locale);

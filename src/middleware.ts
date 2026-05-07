@@ -86,11 +86,27 @@ export function middleware(req: NextRequest) {
     if (!/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(sub)) {
       return new NextResponse('Invalid hostname', { status: 400 });
     }
+
+    // ?preview=<token> persiste em cookie por 30min — assim subpáginas
+    // do site (menu, contatti) também renderizam o draft sem precisar
+    // do query param em todo link.
+    const previewToken = url.searchParams.get('preview');
+
     url.pathname = `/sites/${sub}${url.pathname}`;
-    return rewriteWithHeaders(url, req.headers, {
+    const res = rewriteWithHeaders(url, req.headers, {
       'x-org-root-domain': rootDomain,
       'x-tenant-slug': sub,
     });
+    if (previewToken) {
+      res.cookies.set({
+        name: `factory-preview-${sub}`,
+        value: previewToken,
+        path: '/',
+        maxAge: 60 * 30,
+        sameSite: 'lax',
+      });
+    }
+    return res;
   }
 
   return NextResponse.next();

@@ -16,7 +16,7 @@ export default async function ContattiPage({ params }: { params: { slug: string 
   if (!org) notFound();
 
   const tenant = await getTenantBySlug(org.id, params.slug);
-  if (!tenant || tenant.status !== 'live') notFound();
+  if (!tenant) notFound();
 
   const locale = resolveSiteLocale(tenant);
   const messages = getMessages(locale);

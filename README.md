@@ -139,9 +139,9 @@ supabase gen types typescript --linked > src/lib/supabase/types.ts  # regen type
 
 - [ ] T1 — Foundation
 - [ ] T2 — Public site template
-- [ ] T3 — Menu extraction
+- [x] T3 — Menu extraction
 - [x] T4 — Pipeline UI stages 1-3
-- [ ] T5 — Pipeline UI stages 4-6
+- [x] T5 — Pipeline UI stages 4-6
 - [ ] T6 — Pipeline UI stages 7-8
 - [ ] T7 — Cash close + legal + welcome email
 - [ ] T7.5 — Stripe activation (diferido)

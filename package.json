@@ -11,7 +11,9 @@
     "db:push": "supabase db push",
     "db:reset": "supabase db reset",
     "seed": "node --experimental-websocket --no-warnings --env-file=.env.local scripts/seed-test-tenants.mjs",
-    "setup:storage": "node --experimental-websocket --no-warnings --env-file=.env.local scripts/setup-storage.mjs"
+    "setup:storage": "node --experimental-websocket --no-warnings --env-file=.env.local scripts/setup-storage.mjs",
+    "smoke": "./scripts/smoke.sh",
+    "smoke:build": "./scripts/smoke.sh --build"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.0",

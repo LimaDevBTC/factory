@@ -7,15 +7,19 @@ import type { PitchSession } from '@/lib/supabase/types';
 import { advanceStageAction } from '@/app/app/(protected)/pipeline/[sessionId]/actions';
 import { RecordButton } from '@/components/pipeline/RecordButton';
 
-function NextButton({ disabled }: { disabled: boolean }) {
+function NextButton({ hasAudio }: { hasAudio: boolean }) {
   const { pending } = useFormStatus();
   return (
     <button
       type="submit"
-      disabled={disabled || pending}
+      disabled={pending}
       className="flex h-12 w-full items-center justify-center gap-2 rounded-md bg-primary px-4 text-base font-medium text-primary-foreground shadow-sm transition disabled:opacity-50"
     >
-      {pending ? 'Avançando…' : 'Consentimento gravado → próximo'}
+      {pending
+        ? 'Avançando…'
+        : hasAudio
+        ? 'Consentimento gravado → próximo'
+        : 'Avançar sem áudio'}
       {!pending && <ArrowRight className="h-4 w-4" aria-hidden />}
     </button>
   );
@@ -36,12 +40,13 @@ export function ConsentStage({ session }: { session: PitchSession }) {
       />
 
       <form action={action}>
-        <NextButton disabled={!audioUrl} />
+        <NextButton hasAudio={!!audioUrl} />
       </form>
 
       {!audioUrl && (
         <p className="text-center text-xs text-muted-foreground">
-          Grava o consentimento antes de avançar.
+          Áudio é forte proteção jurídica mas não obrigatório — se o dono recusar,
+          avança e segue. Anota isso nos notes do outcome no fim.
         </p>
       )}
     </div>

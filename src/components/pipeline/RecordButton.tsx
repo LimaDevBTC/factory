@@ -47,6 +47,14 @@ export function RecordButton({ sessionId, field, initialUrl, maxSeconds = 60, on
   }, []);
 
   async function start() {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setState({
+        kind: 'error',
+        message:
+          'Browser bloqueia gravação em HTTP. Reinicia o dev com `pnpm dev:https` e acessa via https://app.lvh.me:3001 pra liberar o microfone. Em prod o site sempre é HTTPS.',
+      });
+      return;
+    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;

@@ -42,3 +42,4 @@ supabase/.temp
 factory.tar.gz
 factory-t1-prompt.md
 .claude/
+.cert/

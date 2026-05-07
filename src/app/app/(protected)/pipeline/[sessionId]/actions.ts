@@ -12,7 +12,9 @@ import {
 
 async function authorizeSession(sessionId: string) {
   const session = await getCurrentUserOrgMembership();
-  if (!session) throw new Error('not_authenticated');
+  if (!session) {
+    redirect('/login');
+  }
 
   const supabase = createAdminClient();
   const { data, error } = await supabase
@@ -21,44 +23,69 @@ async function authorizeSession(sessionId: string) {
     .eq('id', sessionId)
     .eq('operator_id', session.user.id)
     .maybeSingle();
-  if (error) throw error;
-  if (!data) throw new Error('session_not_found_or_not_yours');
+  if (error) {
+    redirect(`/pipeline?error=${encodeURIComponent(error.message)}`);
+  }
+  if (!data) {
+    redirect('/pipeline?error=session_not_found');
+  }
 
   return { session, supabase, pitch: data };
 }
 
-export async function advanceStageAction(sessionId: string, fromStage: Stage) {
+/**
+ * Avança o stage de fromStage pro próximo. Sempre redireciona — sucesso pra
+ * stage seguinte, erro pra mesma stage com ?error= query.
+ *
+ * Assinatura inclui FormData opcional pra ser usável como `<form action>` via
+ * `action.bind(null, sessionId, fromStage)`. Bind enche os 2 primeiros args;
+ * form passa FormData como o terceiro (que ignoramos).
+ */
+export async function advanceStageAction(
+  sessionId: string,
+  fromStage: Stage,
+  _formData?: FormData,
+): Promise<void> {
   const { supabase, pitch } = await authorizeSession(sessionId);
 
   if (pitch.current_stage !== fromStage) {
-    return { ok: false, message: `Stage atual é ${pitch.current_stage}, não ${fromStage}` };
+    // URL desincronizada — redirect pra stage real
+    redirect(`/pipeline/${sessionId}/${pitch.current_stage}`);
   }
 
   const next = nextStageFn(fromStage);
   if (!next) {
-    return { ok: false, message: 'Já estás no último stage.' };
+    redirect(`/pipeline/${sessionId}/${fromStage}?error=already_at_last_stage`);
   }
 
   const { error } = await supabase
     .from('pitch_sessions')
     .update({ current_stage: next, updated_at: new Date().toISOString() })
     .eq('id', sessionId);
-  if (error) return { ok: false, message: error.message };
+  if (error) {
+    redirect(`/pipeline/${sessionId}/${fromStage}?error=${encodeURIComponent(error.message)}`);
+  }
 
-  revalidatePath(`/pipeline/${sessionId}`, 'layout');
+  revalidatePath(`/app/pipeline/${sessionId}`, 'layout');
   redirect(`/pipeline/${sessionId}/${next}`);
 }
 
-export async function setStageAction(sessionId: string, target: Stage) {
+export async function setStageAction(
+  sessionId: string,
+  target: Stage,
+  _formData?: FormData,
+): Promise<void> {
   if (!PIPELINE_STAGES.includes(target)) {
-    return { ok: false, message: 'Stage inválido' };
+    redirect(`/pipeline/${sessionId}?error=invalid_stage`);
   }
   const { supabase } = await authorizeSession(sessionId);
   const { error } = await supabase
     .from('pitch_sessions')
     .update({ current_stage: target, updated_at: new Date().toISOString() })
     .eq('id', sessionId);
-  if (error) return { ok: false, message: error.message };
-  revalidatePath(`/pipeline/${sessionId}`, 'layout');
+  if (error) {
+    redirect(`/pipeline/${sessionId}?error=${encodeURIComponent(error.message)}`);
+  }
+  revalidatePath(`/app/pipeline/${sessionId}`, 'layout');
   redirect(`/pipeline/${sessionId}/${target}`);
 }

@@ -10,6 +10,21 @@ import {
   type Stage,
 } from '@/lib/scripts';
 
+/**
+ * Mapa Stage → coluna timestamp no schema. Schema seta approach_at = now()
+ * no insert; outras stages têm coluna mas começam null e a gente preenche
+ * quando o operator avança PRA elas.
+ */
+const STAGE_AT_COLUMN: Partial<Record<Stage, string>> = {
+  approach: 'approach_at',
+  consent: 'consent_at',
+  capture: 'capture_at',
+  processing: 'processing_at',
+  ready: 'ready_at',
+  present: 'presented_at',
+  // pricing/close não têm coluna dedicada — usam outcome_at quando finaliza
+};
+
 async function authorizeSession(sessionId: string) {
   const session = await getCurrentUserOrgMembership();
   if (!session) {
@@ -33,14 +48,6 @@ async function authorizeSession(sessionId: string) {
   return { session, supabase, pitch: data };
 }
 
-/**
- * Avança o stage de fromStage pro próximo. Sempre redireciona — sucesso pra
- * stage seguinte, erro pra mesma stage com ?error= query.
- *
- * Assinatura inclui FormData opcional pra ser usável como `<form action>` via
- * `action.bind(null, sessionId, fromStage)`. Bind enche os 2 primeiros args;
- * form passa FormData como o terceiro (que ignoramos).
- */
 export async function advanceStageAction(
   sessionId: string,
   fromStage: Stage,
@@ -49,7 +56,6 @@ export async function advanceStageAction(
   const { supabase, pitch } = await authorizeSession(sessionId);
 
   if (pitch.current_stage !== fromStage) {
-    // URL desincronizada — redirect pra stage real
     redirect(`/pipeline/${sessionId}/${pitch.current_stage}`);
   }
 
@@ -58,10 +64,11 @@ export async function advanceStageAction(
     redirect(`/pipeline/${sessionId}/${fromStage}?error=already_at_last_stage`);
   }
 
-  const { error } = await supabase
-    .from('pitch_sessions')
-    .update({ current_stage: next, updated_at: new Date().toISOString() })
-    .eq('id', sessionId);
+  const update: Record<string, unknown> = { current_stage: next };
+  const stageAtCol = STAGE_AT_COLUMN[next];
+  if (stageAtCol) update[stageAtCol] = new Date().toISOString();
+
+  const { error } = await supabase.from('pitch_sessions').update(update).eq('id', sessionId);
   if (error) {
     redirect(`/pipeline/${sessionId}/${fromStage}?error=${encodeURIComponent(error.message)}`);
   }
@@ -79,10 +86,12 @@ export async function setStageAction(
     redirect(`/pipeline/${sessionId}?error=invalid_stage`);
   }
   const { supabase } = await authorizeSession(sessionId);
-  const { error } = await supabase
-    .from('pitch_sessions')
-    .update({ current_stage: target, updated_at: new Date().toISOString() })
-    .eq('id', sessionId);
+
+  const update: Record<string, unknown> = { current_stage: target };
+  const stageAtCol = STAGE_AT_COLUMN[target];
+  if (stageAtCol) update[stageAtCol] = new Date().toISOString();
+
+  const { error } = await supabase.from('pitch_sessions').update(update).eq('id', sessionId);
   if (error) {
     redirect(`/pipeline/${sessionId}?error=${encodeURIComponent(error.message)}`);
   }

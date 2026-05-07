@@ -83,11 +83,16 @@ export async function submitCaptureAction(sessionId: string, formData: FormData)
 
   const { data: pitch } = await supabase
     .from('pitch_sessions')
-    .select('id, tenant_id, organization_id, operator_id, owner_voice_url, consent_audio_url')
+    .select('id, tenant_id, organization_id, operator_id, consent_audio_url, metadata')
     .eq('id', sessionId)
     .eq('operator_id', session.user.id)
     .maybeSingle();
   if (!pitch) return { ok: false, message: 'session_not_found' };
+
+  // Owner voice URL fica em metadata.owner_voice_url (sem coluna dedicada
+  // em pitch_sessions). Capture transfere pra tenants.owner_voice_audio_url.
+  const ownerVoiceUrl =
+    (pitch.metadata as { owner_voice_url?: string } | null)?.owner_voice_url ?? null;
 
   const enabledRaw = formData.getAll('enabled_locales').map(String);
 
@@ -152,7 +157,7 @@ export async function submitCaptureAction(sessionId: string, formData: FormData)
         primary_color: vibe.defaultColors.primary,
         secondary_color: vibe.defaultColors.secondary,
         font_pairing: vibe.fontPairing,
-        owner_voice_audio_url: pitch.owner_voice_url,
+        owner_voice_audio_url: ownerVoiceUrl,
         owner_voice_consent_at: pitch.consent_audio_url ? new Date().toISOString() : null,
       })
       .select('id')
@@ -164,7 +169,7 @@ export async function submitCaptureAction(sessionId: string, formData: FormData)
 
     await supabase
       .from('pitch_sessions')
-      .update({ tenant_id: tenantId, updated_at: new Date().toISOString() })
+      .update({ tenant_id: tenantId })
       .eq('id', sessionId);
   } else {
     const { error: updErr } = await supabase
@@ -183,7 +188,7 @@ export async function submitCaptureAction(sessionId: string, formData: FormData)
         public_email: data.public_email || null,
         enabled_locales: data.enabled_locales,
         hours_json: hours,
-        owner_voice_audio_url: pitch.owner_voice_url,
+        owner_voice_audio_url: ownerVoiceUrl,
         owner_voice_consent_at: pitch.consent_audio_url ? new Date().toISOString() : null,
         updated_at: new Date().toISOString(),
       })
@@ -194,7 +199,11 @@ export async function submitCaptureAction(sessionId: string, formData: FormData)
   // Avança stage pra processing — T5 vai pegar daqui
   await supabase
     .from('pitch_sessions')
-    .update({ current_stage: 'processing', updated_at: new Date().toISOString() })
+    .update({
+      current_stage: 'processing',
+      capture_at: new Date().toISOString(),
+      processing_at: new Date().toISOString(),
+    })
     .eq('id', sessionId);
 
   redirect(`/pipeline/${sessionId}/processing`);

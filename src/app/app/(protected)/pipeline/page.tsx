@@ -46,17 +46,20 @@ export default async function PipelinePage() {
         ) : (
           <ul className="mt-2 space-y-2">
             {inFlight.map((s) => {
-              const playbook = PIPELINE_PLAYBOOK[s.current_stage];
+              // Em curso (outcome=null) sempre tá em uma das 8 stages ativas;
+              // os enums won/lost/etc. só rolam pós-outcome. Cast seguro.
+              const stage = s.current_stage as Stage;
+              const playbook = PIPELINE_PLAYBOOK[stage];
               return (
                 <li key={s.id}>
                   <Link
-                    href={`/pipeline/${s.id}/${s.current_stage}`}
+                    href={`/pipeline/${s.id}/${stage}`}
                     className="block rounded-xl border border-border bg-card p-4 hover:bg-secondary"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="font-medium">
-                          {STAGE_LABEL[s.current_stage]} <span className="text-muted-foreground">· stage {playbook.order}/8</span>
+                          {STAGE_LABEL[stage]} <span className="text-muted-foreground">· stage {playbook.order}/8</span>
                         </p>
                         <p className="text-xs text-muted-foreground">
                           Iniciado {formatRelative(s.created_at)}

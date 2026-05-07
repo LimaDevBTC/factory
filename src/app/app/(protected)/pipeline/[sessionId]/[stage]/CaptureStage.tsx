@@ -117,7 +117,7 @@ export function CaptureStage({ session }: { session: PitchSession }) {
         <RecordButton
           sessionId={session.id}
           field="owner_voice"
-          initialUrl={session.owner_voice_url}
+          initialUrl={session.metadata?.owner_voice_url ?? null}
           maxSeconds={45}
         />
       </Section>

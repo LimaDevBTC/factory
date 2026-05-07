@@ -27,7 +27,7 @@ export async function loadPipelineForOperator(operatorId: string): Promise<Pipel
       .select('*')
       .eq('operator_id', operatorId)
       .is('outcome', null)
-      .order('updated_at', { ascending: false }),
+      .order('approach_at', { ascending: false }),
     supabase
       .from('pitch_sessions')
       .select('*')

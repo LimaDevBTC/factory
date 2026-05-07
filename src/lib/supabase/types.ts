@@ -92,6 +92,11 @@ export type Tenant = {
 
   hours_json: HoursJson | null;
 
+  /** Schema column name é `owner_voice_audio_url` (no tenant). */
+  owner_voice_audio_url: string | null;
+  owner_voice_transcript: string | null;
+  owner_voice_consent_at: string | null;
+
   status: TenantStatus;
   lead_source: LeadSource;
   lead_source_detail: string | null;
@@ -175,13 +180,34 @@ export type PitchStage =
 
 export type PitchOutcome = 'won' | 'lost' | 'thinking' | 'no_show' | 'archived' | null;
 
+/**
+ * pitch_sessions schema reflete o que está em supabase/schema.sql.
+ * Notar: SEM `updated_at` e SEM `owner_voice_url`. Stage progression é via
+ * stage_at timestamps. Owner voice URL fica em `metadata.owner_voice_url`
+ * temporariamente, depois é movido pra `tenants.owner_voice_audio_url` no
+ * capture submit.
+ */
+export type PitchSessionMetadata = {
+  owner_voice_url?: string;
+  selected_plan?: string;
+  [key: string]: unknown;
+};
+
 export type PitchSession = {
   id: string;
   organization_id: string;
   operator_id: string;
   tenant_id: string | null;
-  current_stage: PitchStage;
   target_lang: string;
+  current_stage: PitchStage | 'won' | 'lost' | 'thinking' | 'no_show' | 'archived';
+
+  approach_at: string | null;
+  consent_at: string | null;
+  capture_at: string | null;
+  processing_at: string | null;
+  ready_at: string | null;
+  presented_at: string | null;
+  outcome_at: string | null;
 
   outcome: PitchOutcome;
   outcome_reason: string | null;
@@ -191,11 +217,9 @@ export type PitchSession = {
   operator_self_rating: number | null;
 
   consent_audio_url: string | null;
-  owner_voice_url: string | null;
 
-  metadata: Record<string, unknown> | null;
+  metadata: PitchSessionMetadata | null;
   created_at: string;
-  updated_at: string;
 };
 
 export type Booking = {

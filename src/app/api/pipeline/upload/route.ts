@@ -8,8 +8,13 @@ const FieldSchema = z.enum(['consent_audio', 'owner_voice', 'photo']);
 
 /**
  * Upload de mídia da pipeline (consent audio, owner voice, photos do menu).
- * Operator-authenticated. Persiste URL na tabela `media` + atualiza
- * `pitch_sessions` quando relevante (consent_audio_url / owner_voice_url).
+ * Operator-authenticated. Persiste:
+ *   - consent_audio → pitch_sessions.consent_audio_url (coluna existente)
+ *   - owner_voice → pitch_sessions.metadata.owner_voice_url
+ *     (sem coluna dedicada no schema; copiada pra tenants.owner_voice_audio_url
+ *     no capture submit)
+ *   - photo → media table quando tenant_id já existe; senão só fica no
+ *     storage até o capture criar o tenant
  */
 export async function POST(req: NextRequest) {
   const session = await getCurrentUserOrgMembership();
@@ -41,7 +46,7 @@ export async function POST(req: NextRequest) {
   const admin = createAdminClient();
   const { data: pitch, error: pitchErr } = await admin
     .from('pitch_sessions')
-    .select('id, operator_id, tenant_id')
+    .select('id, operator_id, tenant_id, metadata')
     .eq('id', sessionId)
     .eq('operator_id', session.user.id)
     .maybeSingle();
@@ -69,21 +74,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 
-  // Atualiza pitch_session quando aplicável
   if (field === 'consent_audio') {
-    await admin.from('pitch_sessions').update({
-      consent_audio_url: uploaded.url,
-      updated_at: new Date().toISOString(),
-    }).eq('id', sessionId);
+    await admin
+      .from('pitch_sessions')
+      .update({ consent_audio_url: uploaded.url })
+      .eq('id', sessionId);
   } else if (field === 'owner_voice') {
-    await admin.from('pitch_sessions').update({
-      owner_voice_url: uploaded.url,
-      updated_at: new Date().toISOString(),
-    }).eq('id', sessionId);
+    const existingMeta = (pitch.metadata as Record<string, unknown> | null) ?? {};
+    const nextMeta = { ...existingMeta, owner_voice_url: uploaded.url };
+    await admin
+      .from('pitch_sessions')
+      .update({ metadata: nextMeta })
+      .eq('id', sessionId);
   }
 
-  // Photos: registra em `media` table se já tem tenant_id criado; senão fica
-  // só como URL no storage até o capture criar o tenant.
   if (field === 'photo' && pitch.tenant_id) {
     await admin.from('media').insert({
       tenant_id: pitch.tenant_id,

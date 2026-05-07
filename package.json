@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "db:push": "supabase db push",
     "db:reset": "supabase db reset",
-    "seed": "node --experimental-websocket --no-warnings --env-file=.env.local scripts/seed-test-tenants.mjs"
+    "seed": "node --experimental-websocket --no-warnings --env-file=.env.local scripts/seed-test-tenants.mjs",
+    "setup:storage": "node --experimental-websocket --no-warnings --env-file=.env.local scripts/setup-storage.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.0",

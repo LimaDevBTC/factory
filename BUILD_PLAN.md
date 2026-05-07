@@ -8,8 +8,8 @@
 
 ## TL;DR (estado em 2026-05-06)
 
-- T0 ✅, T1 ✅, T2 ✅ (site público vibe-aware, multi-tenant, allergens, filters, prenota condicional, contatti, cookie banner, /api/consents+/api/bookings, seed 2 tenants)
-- Próximo passo: **T3** (menu extraction via Claude vision)
+- T0 ✅, T1 ✅, T2 ✅, T4 ✅ (pipeline list + KPIs, /new, stage router, ScriptCard + IT cheat-sheet, RecordButton/PhotoUploader, capture form com upsert tenant + Supabase Storage)
+- Próximo passo: **T3** (menu extraction via Claude vision) e/ou **T5** (processing + ready + present)
 - Modelo v1: **cash-only**, 3/6/12 meses prepago (€50/€99/€179)
 - Stripe: **diferido pra T7.5** (pós-MEI/CNPJ + Stripe Standard ativo)
 - Multilíngue TTS: **removido em v1** (só PT coaching + IT cheat-sheet inline). Diáspora play deferido, volta como tarefa nova.

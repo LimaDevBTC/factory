@@ -20,7 +20,7 @@ const PLAN_LABELS: Record<SelectedPlan, string> = {
 const TERMS_VERSION = process.env.LEGAL_TERMS_VERSION ?? '2026-05-08';
 const PRIVACY_VERSION = process.env.LEGAL_PRIVACY_VERSION ?? '2026-05-08';
 const DPA_VERSION = process.env.LEGAL_DPA_VERSION ?? '2026-05-08';
-const SUPPORT_EMAIL = process.env.RESEND_FROM?.match(/<(.+)>/)?.[1] ?? 'ciao@factory.app';
+const SUPPORT_EMAIL = process.env.RESEND_FROM?.match(/<(.+)>/)?.[1] ?? 'ciao@thefactory.life';
 
 const WAIVER_TEXT_IT =
   "Acconsento all'esecuzione immediata del servizio (pubblicazione del sito) e " +
@@ -185,7 +185,7 @@ export async function cashCloseAction(
 
   // Welcome email — best-effort; falha não bloqueia o close, mas registra
   if (tenant.contact_email) {
-    const rootDomain = h.get('x-org-root-domain') ?? 'factory.app';
+    const rootDomain = h.get('x-org-root-domain') ?? 'thefactory.life';
     const port = (h.get('host') ?? '').match(/:(\d+)$/)?.[1];
     const proto = h.get('x-forwarded-proto') ?? 'https';
     const portSuffix = port ? `:${port}` : '';

@@ -9,7 +9,7 @@
 ## TL;DR (estado em 2026-05-06)
 
 - **T0–T8 ✅ — código v1 completo** (foundation, public site, menu extraction, pipeline 8 stages, cash close legal-compliant, owner dashboard IT)
-- Próximo passo: **T9** (Cosenza dry-run com 4 menus reais) + configurações prod (Supabase Auth Site URL/Redirect URLs, Resend SMTP, dominio factory.app, mkcert pra mídia em dev)
+- Próximo passo: **T9** (Cosenza dry-run com 4 menus reais) + configurações prod (Supabase Auth Site URL/Redirect URLs, Resend SMTP, dominio thefactory.life, mkcert pra mídia em dev)
 - Modelo v1: **cash-only**, 3/6/12 meses prepago (€50/€99/€179)
 - Stripe: **diferido pra T7.5** (pós-MEI/CNPJ + Stripe Standard ativo)
 - Multilíngue TTS: **removido em v1** (só PT coaching + IT cheat-sheet inline). Diáspora play deferido, volta como tarefa nova.
@@ -655,7 +655,7 @@ Nenhuma.
 
 - Coletar 4 menus reais de Cosenza (1 gelateria, 1 caffetteria, 1 trattoria, 1 enoteca) — pode ser via foto enviada por amigo local OU encontrado online (sites de TripAdvisor que mostram menu)
 - Rodar cada um pelo factory: capture → process → ready → present → close (won simulado)
-- Resultado: 4 sites live em `<slug>.lvh.me:3001` ou `<slug>.factory.app` se já deployado
+- Resultado: 4 sites live em `<slug>.lvh.me:3001` ou `<slug>.thefactory.life` se já deployado
 - Polish: corrigir traduções estranhas, ajustar CSS de vibes específicos
 - Practice pitch: cronometrar do "facciamolo" até site live — meta < 10min
 - Documentar bugs encontrados, abrir issues, fix os bloqueantes
@@ -730,11 +730,11 @@ Coisas pra alinhar com Edson antes ou durante a build.
 
 | # | Decisão | Quando | Default tentativo |
 |---|---|---|---|
-| 1 | Domínio `factory.app` comprado? Onde? | Antes de deploy Vercel | usar `lvh.me` em dev até decidir |
+| 1 | Domínio `thefactory.life` comprado? Onde? | Antes de deploy Vercel | usar `lvh.me` em dev até decidir |
 | 2 | PDF de recibo: jsPDF Node vs Puppeteer vs React-PDF | T7 | jsPDF (~50KB, suficiente pra recibo simples) |
 | 3 | Preview de tenant draft: token assinado vs cookie operator | T5 | cookie operator (mais simples, sem mudança schema) |
 | 4 | Ícones allergens: gerar próprios vs pack open-source | T2 | gerar próprios minimalistas (controle total) |
-| 5 | Resend domain verification: usar `factory.app` ou subdomain `mail.factory.app` | T7 | esperar #1 |
+| 5 | Resend domain verification: usar `thefactory.life` ou subdomain `mail.thefactory.life` | T7 | esperar #1 |
 | 6 | `factory_jobs` worker: cron Vercel vs invocação direta | T5 | invocação direta pós-capture (free tier compatible) |
 | 7 | Plausible vs sem analytics em v1 | T2 | sem analytics até T2 done; adicionar opcional depois |
 | 8 | Cookie banner: shadcn ou custom | T2 | custom (1 component, 100 linhas) |

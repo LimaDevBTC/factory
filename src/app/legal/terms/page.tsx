@@ -27,7 +27,7 @@ export default function TermsPage() {
       <h2 className="mt-6 text-xl font-semibold">3. Pubblicazione immediata</h2>
       <p>
         Al momento della conferma del pagamento il sito web del Cliente viene pubblicato
-        immediatamente all&rsquo;indirizzo <code>&lt;slug&gt;.factory.app</code>, e il Servizio si
+        immediatamente all&rsquo;indirizzo <code>&lt;slug&gt;.thefactory.life</code>, e il Servizio si
         considera prestato. Il Cliente riceve via email il link al pannello di gestione e
         la ricevuta non fiscale.
       </p>

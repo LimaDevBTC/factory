@@ -16,7 +16,7 @@ export default function PrivacyPage() {
       <h2 className="mt-6 text-xl font-semibold">1. Titolare del trattamento</h2>
       <p>
         Factory — partita IVA in attivazione (Italia/Brasile durante la fase iniziale).
-        Email contatto: <a href="mailto:privacy@factory.app">privacy@factory.app</a>.
+        Email contatto: <a href="mailto:privacy@thefactory.life">privacy@thefactory.life</a>.
       </p>
 
       <h2 className="mt-6 text-xl font-semibold">2. Dati raccolti</h2>
@@ -71,7 +71,7 @@ export default function PrivacyPage() {
       </ul>
       <p>
         Per esercitare i diritti, scrivere a{' '}
-        <a href="mailto:privacy@factory.app">privacy@factory.app</a>. Risposta entro 30
+        <a href="mailto:privacy@thefactory.life">privacy@thefactory.life</a>. Risposta entro 30
         giorni. È possibile reclamare al Garante per la Protezione dei Dati Personali
         (<a href="https://www.gpdp.it" target="_blank" rel="noopener noreferrer">www.gpdp.it</a>).
       </p>

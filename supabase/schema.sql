@@ -21,8 +21,8 @@ create table public.organizations (
   logo_url        text,
   primary_color   text default '#0F172A',
   -- Domain config — middleware reads this to resolve hostnames per org
-  root_domain     citext unique not null,            -- 'factory.app' (Edson), 'webfacil.com.br' (operador BR)
-  app_subdomain   text default 'app',                -- e.g. 'app' → app.factory.app
+  root_domain     citext unique not null,            -- 'thefactory.life' (Edson), 'webfacil.com.br' (operador BR)
+  app_subdomain   text default 'app',                -- e.g. 'app' → app.thefactory.life
   -- Billing — Stripe Connect Express
   stripe_account_id text,                            -- acct_xxx of the connected Stripe of the operator
   stripe_charges_enabled boolean default false,
@@ -57,7 +57,7 @@ create index idx_organizations_root_domain on public.organizations(root_domain);
 
 -- Bootstrap row for Edson's organization
 insert into public.organizations (slug, brand_name, root_domain, country, default_pitch_lang, enabled_pitch_langs)
-values ('factory-edson', 'Factory', 'factory.app', 'IT', 'it-IT', array['it-IT','en-US']::text[])
+values ('factory-edson', 'Factory', 'thefactory.life', 'IT', 'it-IT', array['it-IT','en-US']::text[])
 on conflict (slug) do nothing;
 
 -- ============================================================================

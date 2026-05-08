@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 /**
  * Tenant resolution middleware — SaaS-multi-org-ready.
  *
- * Each Factory organization has its own root domain (e.g. 'factory.app' for
+ * Each Factory organization has its own root domain (e.g. 'thefactory.life' for
  * Edson, 'webfacil.com.br' for an operator in Brazil). The middleware extracts
  * the host, identifies the org root, and rewrites accordingly.
  *
@@ -15,7 +15,7 @@ import { NextRequest, NextResponse } from 'next/server';
  *   <custom-domain>                  → /sites/byhost/* with x-custom-domain header
  *
  * For v1, KNOWN_ROOT_DOMAINS env var lists configured org roots (Edson's
- * 'factory.app' is the only one). Adding a new org = adding to that list +
+ * 'thefactory.life' is the only one). Adding a new org = adding to that list +
  * inserting a row into `organizations`. No code change.
  *
  * Headers set on the REQUEST so RSC `headers()` can read them. Setting on
@@ -23,7 +23,7 @@ import { NextRequest, NextResponse } from 'next/server';
  * downstream RSCs read.
  */
 
-const KNOWN_ROOT_DOMAINS = (process.env.KNOWN_ROOT_DOMAINS || 'factory.app,lvh.me')
+const KNOWN_ROOT_DOMAINS = (process.env.KNOWN_ROOT_DOMAINS || 'thefactory.life,lvh.me')
   .split(',')
   .map(d => d.trim().toLowerCase())
   .filter(Boolean);

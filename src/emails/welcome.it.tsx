@@ -89,15 +89,15 @@ export default function WelcomeEmailIt(props: WelcomeEmailProps) {
           <Section>
             <Text style={sectionTitle}>Documenti accettati</Text>
             <Text style={paragraph}>
-              <Link href="https://factory.app/legal/terms" style={link}>
+              <Link href="https://thefactory.life/legal/terms" style={link}>
                 Termini di Servizio v.{props.legalVersions.terms}
               </Link>
               <br />
-              <Link href="https://factory.app/legal/privacy" style={link}>
+              <Link href="https://thefactory.life/legal/privacy" style={link}>
                 Informativa Privacy v.{props.legalVersions.privacy}
               </Link>
               <br />
-              <Link href="https://factory.app/legal/dpa" style={link}>
+              <Link href="https://thefactory.life/legal/dpa" style={link}>
                 Data Processing Agreement v.{props.legalVersions.dpa}
               </Link>
             </Text>

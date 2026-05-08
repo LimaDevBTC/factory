@@ -15,7 +15,7 @@ Target verticals (all share the same engine, differentiated by vibe):
 - Sweets: gelateria artigianale, pasticceria
 - Beverage-led: enoteca/wine bar, birreria/pub
 
-The hook is identical across verticals: photograph the physical menu (or gusti board, or cocktail list) → AI extracts items, prices, allergens → site renders → owner pays via Satispay → site goes live on `<slug>.factory.app` (custom domain plugged in within 24h via Cloudflare for SaaS).
+The hook is identical across verticals: photograph the physical menu (or gusti board, or cocktail list) → AI extracts items, prices, allergens → site renders → owner pays via Satispay → site goes live on `<slug>.thefactory.life` (custom domain plugged in within 24h via Cloudflare for SaaS).
 
 The WhatsApp agent layer is **NOT in v1**. It is the upsell, sold 2-4 weeks after the site is live. v1 ships **only the site**.
 
@@ -103,7 +103,7 @@ Three levels of tenancy:
 3. **Tenant** = an end client of an organization (a restaurant, gelateria, café)
 
 Each organization has:
-- Its own **root domain** (`factory.app`, `webfacil.com.br`, `primapagina.it`)
+- Its own **root domain** (`thefactory.life`, `webfacil.com.br`, `primapagina.it`)
 - Its own **brand** (logo, color, name shown in operator UI and tenant dashboards)
 - Its own **Stripe Connect Express account** (cobra do cliente direto, Factory não fica no meio)
 - Its own **set of operators** with role-based access (`super_admin`, `org_admin`, `operator`)
@@ -132,7 +132,7 @@ Until those triggers fire, those features are mato. v1 has hardcoded values wher
 |---|---|---|
 | Organizations | One row, seeded via SQL | Self-onboarding flow |
 | Org members | Only Edson (super_admin) | Multi-user with invites |
-| Root domain | `factory.app` in env var | Lookup from `organizations.root_domain` |
+| Root domain | `thefactory.life` in env var | Lookup from `organizations.root_domain` |
 | Stripe | Edson's Stripe directly | Stripe Connect Express |
 | Branding in UI | Hardcoded "Factory" | Read from `organizations.brand_name` |
 | Pitch languages | All available, single config | Per-org `enabled_pitch_langs` |
@@ -148,15 +148,15 @@ The schema reflects the **SaaS reality**. The UI reflects **v1 reality**. Refact
 
 Three hostname patterns resolved by `middleware.ts`:
 
-1. **Marketing root** — `factory.app` and `www.factory.app` → static landing page selling the product to restaurants
-2. **SaaS app** — `app.factory.app` → operator factory (Edson's onboarding wizard) + tenant dashboards (restaurant owners)
-3. **Tenant sites** — `<slug>.factory.app` (subdomain) OR `<custom-domain>.it` (custom domain via Cloudflare for SaaS) → public-facing restaurant website
+1. **Marketing root** — `thefactory.life` and `www.thefactory.life` → static landing page selling the product to restaurants
+2. **SaaS app** — `app.thefactory.life` → operator factory (Edson's onboarding wizard) + tenant dashboards (restaurant owners)
+3. **Tenant sites** — `<slug>.thefactory.life` (subdomain) OR `<custom-domain>.it` (custom domain via Cloudflare for SaaS) → public-facing restaurant website
 
 Tenant resolution flow:
 - Strip port from hostname (local dev)
 - Match against root → `/marketing/*`
 - Match against `app.` → `/app/*`
-- Match `*.factory.app` → extract slug, rewrite to `/sites/<slug>/*`
+- Match `*.thefactory.life` → extract slug, rewrite to `/sites/<slug>/*`
 - Anything else → assume custom domain, rewrite to `/sites/__custom__/*` with hostname in `x-custom-domain` header, page does DB lookup
 
 ### Stack (decided, not negotiable for v1)
@@ -197,13 +197,13 @@ factory/
     ├── app/
     │   ├── layout.tsx                 ← root layout (locale-aware)
     │   ├── globals.css
-    │   ├── marketing/                 ← factory.app landing
+    │   ├── marketing/                 ← thefactory.life landing
     │   │   └── page.tsx
     │   ├── legal/                     ← public legal pages (Italian default)
     │   │   ├── terms/page.tsx        ← Termini di Servizio (versioned)
     │   │   ├── privacy/page.tsx      ← Informativa Privacy
     │   │   └── dpa/page.tsx          ← Data Processing Agreement (SCC)
-    │   ├── app/                       ← app.factory.app
+    │   ├── app/                       ← app.thefactory.life
     │   │   ├── layout.tsx
     │   │   ├── (auth)/
     │   │   │   ├── login/page.tsx     ← magic link
@@ -577,7 +577,7 @@ At checkout: capture `contact_email` (mandatory), `public_email` (optional, hint
 
 Single email, sent immediately after Stripe webhook confirms payment. Contains everything cliente needs:
 
-- Site URL (`{slug}.factory.app`)
+- Site URL (`{slug}.thefactory.life`)
 - Magic link to dashboard (24h expiry, sets `contact_email_verified_at` on click)
 - Plan summary (tier, setup paid, next billing date)
 - 14-day right-of-withdrawal countdown with cancel link
@@ -790,7 +790,7 @@ T1 (Foundation)
 - Fix any bugs surfaced
 - Pratica o pitch lendo a cheat-sheet IT do PIPELINE_PLAYBOOK; com Vavà, alinhe quem fala o quê
 - Practice timing: target <10min from "facciamolo" to live URL
-- Acceptance: 4 demo sites live at `<slug>.factory.app`, pitch script comfortable
+- Acceptance: 4 demo sites live at `<slug>.thefactory.life`, pitch script comfortable
 - Depends on: T2 minimum (template renders), ideally T7 for end-to-end realism. Can iterate while later tasks finish.
 
 ### Stop conditions
@@ -850,7 +850,7 @@ When working on this codebase:
 | 2026-05-05 | Beachhead = gelateria + caffetteria | Single decider, lower-stakes purchase, multilingual demo with gusti is killer |
 | 2026-05-05 | Project name: `Factory` (committed) | Final brand. Brand both internal (operator UI) and external (customer-facing). Industrial connotation accepted as feature, not bug — signals manufacturing/production speed which is the value prop. |
 | 2026-05-05 | Internal pipeline folder: `src/components/pipeline/` (not `factory/`) | Avoids name collision now that `Factory` is the brand. The pipeline is what the components implement; factory is the brand wrapping them. |
-| 2026-05-05 | Operator route: `/app/pipeline/*` (not `/app/factory/*`) | Same reason — avoids redundant URL like `factory.app/factory/`. |
+| 2026-05-05 | Operator route: `/app/pipeline/*` (not `/app/factory/*`) | Same reason — avoids redundant URL like `thefactory.life/factory/`. |
 | 2026-05-05 | API routes: `/api/jobs/*` (not `/api/factory/*`) | Reflects what they do (background jobs in factory_jobs table). |
 | 2026-05-05 | Schema includes `tenants.lead_source` + `pitch_sessions.client_satisfied`/`operator_self_rating` | Preserves Model 3 ("Uber dos sites") future. Cost: 3 columns. Avoid: schema migration on a million-row table later. |
 | 2026-05-05 | Lifetime plan (€690) treated as exception, not default | Locks in cliente legado se virarmos marketplace recurring no Model 3. Default = monthly; lifetime só sob pedido explícito. |

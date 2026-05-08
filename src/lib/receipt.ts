@@ -141,7 +141,7 @@ function buildReceiptPdf(input: ReceiptInput): jsPDF {
     'Documento non fiscale generato automaticamente.',
     'Factory — piattaforma SaaS per esercizi food & beverage.',
     'I Termini di Servizio, l’informativa Privacy e il DPA sono disponibili',
-    'su https://factory.app/legal e accettati al momento del pagamento.',
+    'su https://thefactory.life/legal e accettati al momento del pagamento.',
   ];
   for (const line of footerLines) {
     doc.text(line, left, y);

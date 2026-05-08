@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
 import type { ReactElement } from 'react';
 
-const FROM = process.env.RESEND_FROM ?? 'Factory <noreply@factory.app>';
+const FROM = process.env.RESEND_FROM ?? 'Factory <noreply@thefactory.life>';
 
 let _client: Resend | null = null;
 function client(): Resend | null {

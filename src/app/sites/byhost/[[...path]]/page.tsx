@@ -63,7 +63,7 @@ function DevHelp({ host }: { host: string | null }) {
   const root = (process.env.KNOWN_ROOT_DOMAINS ?? 'lvh.me')
     .split(',')
     .map((d) => d.trim())
-    .find((d) => d !== 'factory.app' && d !== 'localhost') ?? 'lvh.me';
+    .find((d) => d !== 'thefactory.life' && d !== 'localhost') ?? 'lvh.me';
 
   const links: { label: string; href: string; sub: string }[] = [
     { label: 'Marketing (IT)',           href: `http://${root}:${port}`,                          sub: 'landing público pra captar clientes' },

@@ -5,7 +5,7 @@ const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '*.supabase.co' },
-      { protocol: 'https', hostname: 'media.factory.app' },
+      { protocol: 'https', hostname: 'media.thefactory.life' },
       { protocol: 'https', hostname: '*.r2.cloudflarestorage.com' },
     ],
   },

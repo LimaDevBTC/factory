@@ -16,7 +16,7 @@ const Body = z.object({
   marketing: z.boolean().optional(),
 });
 
-const KNOWN_ROOTS = (process.env.KNOWN_ROOT_DOMAINS ?? 'lvh.me,factory.app')
+const KNOWN_ROOTS = (process.env.KNOWN_ROOT_DOMAINS ?? 'lvh.me,thefactory.life')
   .split(',').map((d) => d.trim().toLowerCase()).filter(Boolean);
 
 function resolveRootDomain(host: string): string | null {

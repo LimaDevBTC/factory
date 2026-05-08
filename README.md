@@ -55,8 +55,8 @@ pnpm dev
 See `CLAUDE.md` for the canonical layout. TL;DR:
 
 - `middleware.ts` — tenant resolution by hostname
-- `src/app/marketing/` — landing page (`factory.app`)
-- `src/app/app/` — SaaS app (`app.factory.app`)
+- `src/app/marketing/` — landing page (`thefactory.life`)
+- `src/app/app/` — SaaS app (`app.thefactory.life`)
   - `factory/` — operator-only onboarding wizard (Edson runs this)
   - `dashboard/` — restaurant owner panel
 - `src/app/sites/[slug]/` — public restaurant sites
@@ -128,7 +128,7 @@ supabase gen types typescript --linked > src/lib/supabase/types.ts  # regen type
 ## Deployment
 
 - **Vercel** (region `fra1` = Frankfurt)
-- Domain wildcard: `*.factory.app` → Vercel
+- Domain wildcard: `*.thefactory.life` → Vercel
 - Custom-domain tenants: Cloudflare for SaaS → CNAME flattening → Vercel
 - Supabase: keep in `eu-central-1` forever
 - R2: `auto` is fine (Cloudflare handles routing); restrict to EU jurisdictional zones in bucket settings

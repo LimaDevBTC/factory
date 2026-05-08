@@ -21,7 +21,7 @@ export default async function DashboardSettings({ params }: { params: { tenantId
         </h1>
         <p className="text-sm text-muted-foreground">
           Modifiche immediate sul sito pubblico. Cambio di vibe e orari avanzati
-          richiedono assistenza — scrivi a ciao@factory.app.
+          richiedono assistenza — scrivi a ciao@thefactory.life.
         </p>
       </header>
 

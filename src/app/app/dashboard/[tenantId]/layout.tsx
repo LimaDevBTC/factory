@@ -65,7 +65,7 @@ export default async function DashboardLayout({
   const rawHost = headerList.get('host') ?? '';
   const port = rawHost.match(/:(\d+)$/)?.[1];
   const proto = headerList.get('x-forwarded-proto') ?? 'http';
-  const rootDomain = headerList.get('x-org-root-domain') ?? 'factory.app';
+  const rootDomain = headerList.get('x-org-root-domain') ?? 'thefactory.life';
   const portSuffix = port ? `:${port}` : '';
   const siteUrl = `${proto}://${t.slug}.${rootDomain}${portSuffix}`;
 

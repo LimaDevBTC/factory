@@ -34,7 +34,7 @@ export default async function DashboardOverview({ params }: { params: { tenantId
   const rawHost = headerList.get('host') ?? '';
   const port = rawHost.match(/:(\d+)$/)?.[1];
   const proto = headerList.get('x-forwarded-proto') ?? 'http';
-  const rootDomain = headerList.get('x-org-root-domain') ?? 'factory.app';
+  const rootDomain = headerList.get('x-org-root-domain') ?? 'thefactory.life';
   const portSuffix = port ? `:${port}` : '';
   const siteUrl = `${proto}://${t.slug}.${rootDomain}${portSuffix}`;
 
@@ -64,7 +64,7 @@ export default async function DashboardOverview({ params }: { params: { tenantId
               <p className="mt-0.5 text-sm text-amber-900">
                 Anche dopo aver acconsentito alla rinuncia, puoi richiedere rimborso integrale fino a{' '}
                 <strong>{withdrawalEnd!.toLocaleDateString('it-IT')}</strong>.
-                Scrivi a <a href="mailto:ciao@factory.app" className="underline">ciao@factory.app</a>.
+                Scrivi a <a href="mailto:ciao@thefactory.life" className="underline">ciao@thefactory.life</a>.
               </p>
             </div>
           </div>
@@ -184,7 +184,7 @@ export default async function DashboardOverview({ params }: { params: { tenantId
           <div>
             <p>Hai bisogno di aiuto?</p>
             <p className="mt-0.5 text-xs">
-              Scrivi a <a href="mailto:ciao@factory.app" className="text-primary hover:underline">ciao@factory.app</a>
+              Scrivi a <a href="mailto:ciao@thefactory.life" className="text-primary hover:underline">ciao@thefactory.life</a>
               {' '}— rispondiamo entro 48h.
             </p>
           </div>

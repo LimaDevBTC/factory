@@ -4,7 +4,7 @@ import { headers } from 'next/headers';
 import { DevBanner } from '@/components/DevBanner';
 import { CopyEmailCta } from '@/components/marketing/CopyEmailCta';
 
-const CONTACT_EMAIL = 'ciao@factory.app';
+const CONTACT_EMAIL = 'ciao@thefactory.life';
 const WHATSAPP_E164 = '393331234567'; // placeholder até número operacional
 
 /**

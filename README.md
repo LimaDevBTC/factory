@@ -145,6 +145,6 @@ supabase gen types typescript --linked > src/lib/supabase/types.ts  # regen type
 - [x] T6 — Pipeline UI stages 7-8
 - [x] T7 — Cash close + legal + welcome email
 - [ ] T7.5 — Stripe activation (diferido)
-- [ ] T8 — Owner dashboard
+- [x] T8 — Owner dashboard
 - [ ] T9 — Cosenza demos + pitch dry-run
 - [ ] First paying customer in Cosenza

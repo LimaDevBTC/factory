@@ -8,8 +8,8 @@
 
 ## TL;DR (estado em 2026-05-06)
 
-- T0 ✅, T1 ✅, T2 ✅, T3 ✅, T4 ✅, T5 ✅, T6 ✅, T7 ✅ (legal IT pages, ToS/Privacy/DPA checkboxes + waiver, cash close seta tenant.live + service period + receipt PDF jsPDF + welcome email Resend, audit log)
-- Próximo passo: **T8** (owner dashboard) → configurações Supabase Auth pra prod
+- **T0–T8 ✅ — código v1 completo** (foundation, public site, menu extraction, pipeline 8 stages, cash close legal-compliant, owner dashboard IT)
+- Próximo passo: **T9** (Cosenza dry-run com 4 menus reais) + configurações prod (Supabase Auth Site URL/Redirect URLs, Resend SMTP, dominio factory.app, mkcert pra mídia em dev)
 - Modelo v1: **cash-only**, 3/6/12 meses prepago (€50/€99/€179)
 - Stripe: **diferido pra T7.5** (pós-MEI/CNPJ + Stripe Standard ativo)
 - Multilíngue TTS: **removido em v1** (só PT coaching + IT cheat-sheet inline). Diáspora play deferido, volta como tarefa nova.

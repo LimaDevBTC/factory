@@ -15,7 +15,8 @@
     "seed": "node --experimental-websocket --no-warnings --env-file=.env.local scripts/seed-test-tenants.mjs",
     "setup:storage": "node --experimental-websocket --no-warnings --env-file=.env.local scripts/setup-storage.mjs",
     "smoke": "./scripts/smoke.sh",
-    "smoke:build": "./scripts/smoke.sh --build"
+    "smoke:build": "./scripts/smoke.sh --build",
+    "e2e": "node --experimental-websocket --no-warnings --env-file=.env.local scripts/e2e-test.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.0",

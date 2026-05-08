@@ -13,6 +13,8 @@ import { CaptureStage } from './CaptureStage';
 import { ProcessingStage } from './ProcessingStage';
 import { ReadyStage } from './ReadyStage';
 import { PresentStage } from './PresentStage';
+import { PricingStage } from './PricingStage';
+import { CloseStage } from './CloseStage';
 
 export const dynamic = 'force-dynamic';
 
@@ -95,6 +97,14 @@ export default async function StagePage({
         {stage === 'present' && (
           <PresentStage session={pitchSession} />
         )}
+
+        {stage === 'pricing' && (
+          <PricingStage session={pitchSession} />
+        )}
+
+        {stage === 'close' && (
+          <CloseStage session={pitchSession} wonFlag={searchParams.won === '1'} />
+        )}
       </div>
 
       {/* Approach é só ScriptCard + advance. Outros stages têm form próprio que faz o advance. */}
@@ -108,20 +118,6 @@ export default async function StagePage({
         </div>
       )}
 
-      {/* pricing/close → T6 (entregues separado). */}
-      {(stage === 'pricing' || stage === 'close') && (
-        <div className="mt-6 space-y-3">
-          <div className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            Stage <strong>{playbook.title_pt}</strong> ainda não implementada — entregue em T6.
-          </div>
-          <Link
-            href="/pipeline"
-            className="block text-center text-xs underline-offset-2 hover:underline"
-          >
-            Voltar pro pipeline
-          </Link>
-        </div>
-      )}
     </div>
   );
 }

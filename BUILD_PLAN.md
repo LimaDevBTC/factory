@@ -8,8 +8,8 @@
 
 ## TL;DR (estado em 2026-05-06)
 
-- T0 ✅, T1 ✅, T2 ✅, T3 ✅, T4 ✅, T5 ✅ (Claude vision menu extraction via factory_jobs, processing/ready/present stages com poller + ItemReviewList + iframe preview com token via cookie persistente)
-- Próximo passo: **T6** (pricing + close) → **T7** (cash close + welcome email)
+- T0 ✅, T1 ✅, T2 ✅, T3 ✅, T4 ✅, T5 ✅, T6 ✅ (pricing 3 cards + close 4 outcomes; reason picker pra lost; follow_up_at picker pra thinking; won placeholder até T7)
+- Próximo passo: **T7** (cash close + legal docs + welcome email + recibo PDF) → **T8** (owner dashboard)
 - Modelo v1: **cash-only**, 3/6/12 meses prepago (€50/€99/€179)
 - Stripe: **diferido pra T7.5** (pós-MEI/CNPJ + Stripe Standard ativo)
 - Multilíngue TTS: **removido em v1** (só PT coaching + IT cheat-sheet inline). Diáspora play deferido, volta como tarefa nova.

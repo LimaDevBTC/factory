@@ -9,7 +9,17 @@ export async function getOrganizationByRootDomain(host: string): Promise<Organiz
     .select('*')
     .eq('root_domain', host)
     .maybeSingle();
-  return (data as Organization) ?? null;
+  if (data) return data as Organization;
+
+  // Dev fallback: em v1 só temos uma org (factory-edson). Se o host bate com
+  // KNOWN_ROOT_DOMAINS mas não bate exato com root_domain do DB (ex.: dev usa
+  // lvh.me, prod usa thefactory.life), retorna a única org. Em prod com
+  // múltiplas orgs isso ficaria errado — mas v1 é single-org.
+  if (process.env.NODE_ENV === 'development') {
+    const { data: anyOrg } = await supabase.from('organizations').select('*').limit(2);
+    if (anyOrg && anyOrg.length === 1) return anyOrg[0] as Organization;
+  }
+  return null;
 }
 
 export async function getTenantBySlug(orgId: string, slug: string): Promise<Tenant | null> {

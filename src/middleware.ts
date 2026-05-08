@@ -57,6 +57,12 @@ export function middleware(req: NextRequest) {
   const rawHost = req.headers.get('host') || '';
   const host = rawHost.replace(/:\d+$/, '').toLowerCase();
 
+  // /legal/* serve a partir de qualquer host (marketing, app, tenant) sem
+  // rewrite por surface — é Factory-level (ToS/Privacy/DPA), não tenant-level.
+  if (url.pathname.startsWith('/legal/')) {
+    return NextResponse.next();
+  }
+
   const rootDomain = resolveRootDomain(host);
 
   // Unknown host → custom domain; page does DB lookup by host

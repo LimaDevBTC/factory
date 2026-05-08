@@ -8,8 +8,8 @@
 
 ## TL;DR (estado em 2026-05-06)
 
-- T0 ✅, T1 ✅, T2 ✅, T3 ✅, T4 ✅, T5 ✅, T6 ✅ (pricing 3 cards + close 4 outcomes; reason picker pra lost; follow_up_at picker pra thinking; won placeholder até T7)
-- Próximo passo: **T7** (cash close + legal docs + welcome email + recibo PDF) → **T8** (owner dashboard)
+- T0 ✅, T1 ✅, T2 ✅, T3 ✅, T4 ✅, T5 ✅, T6 ✅, T7 ✅ (legal IT pages, ToS/Privacy/DPA checkboxes + waiver, cash close seta tenant.live + service period + receipt PDF jsPDF + welcome email Resend, audit log)
+- Próximo passo: **T8** (owner dashboard) → configurações Supabase Auth pra prod
 - Modelo v1: **cash-only**, 3/6/12 meses prepago (€50/€99/€179)
 - Stripe: **diferido pra T7.5** (pós-MEI/CNPJ + Stripe Standard ativo)
 - Multilíngue TTS: **removido em v1** (só PT coaching + IT cheat-sheet inline). Diáspora play deferido, volta como tarefa nova.

@@ -147,6 +147,54 @@ export async function cashCloseAction(
     },
   });
 
+  // Provisiona owner em auth.users + linka em tenant_users.
+  // Best-effort: se falhar, owner ainda pode ser linkado manualmente depois,
+  // mas o magic link self-serve não vai funcionar até isso ser feito.
+  if (tenant.contact_email) {
+    try {
+      // 1. Tenta achar usuário existente por email
+      let ownerUserId: string | null = null;
+      const { data: existing } = await supabase.auth.admin.listUsers();
+      const found = existing.users.find(
+        (u) => u.email?.toLowerCase() === tenant.contact_email!.toLowerCase(),
+      );
+      if (found) {
+        ownerUserId = found.id;
+      } else {
+        // 2. Cria novo user com email já confirmado (sem mandar email de confirmação;
+        // o welcome email cuidará disso e o magic link valida o owner depois)
+        const { data: created, error: createErr } = await supabase.auth.admin.createUser({
+          email: tenant.contact_email,
+          email_confirm: true,
+        });
+        if (createErr) throw createErr;
+        ownerUserId = created.user?.id ?? null;
+      }
+
+      // 3. Linka como owner do tenant (se ainda não está)
+      if (ownerUserId) {
+        await supabase.from('tenant_users').upsert(
+          { tenant_id: tenantId, user_id: ownerUserId, role: 'owner' },
+          { onConflict: 'tenant_id,user_id', ignoreDuplicates: true },
+        );
+      }
+
+      await supabase.from('audit_log').insert({
+        tenant_id: tenantId,
+        actor_type: 'system',
+        action: 'cash_close.owner_provisioned',
+        metadata: { user_id: ownerUserId, email: tenant.contact_email },
+      });
+    } catch (e) {
+      await supabase.from('audit_log').insert({
+        tenant_id: tenantId,
+        actor_type: 'system',
+        action: 'cash_close.owner_provisioning_failed',
+        metadata: { error: e instanceof Error ? e.message : 'unknown' },
+      });
+    }
+  }
+
   // Recibo PDF — best-effort; falha não bloqueia o close
   let receiptUrl: string | null = null;
   try {

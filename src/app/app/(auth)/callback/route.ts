@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 /**
  * Builds origin from the Host header — `request.url` em Next 14 dev usa o
@@ -24,7 +25,7 @@ export async function GET(request: NextRequest) {
   }
 
   const supabase = createClient();
-  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  const { data: sessData, error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {
     return NextResponse.redirect(
@@ -32,5 +33,28 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  return NextResponse.redirect(`${origin}/pipeline`);
+  // Decide o destino: operator → /pipeline; tenant owner → /dashboard/<tid>;
+  // ambos vazios → /pipeline com erro de membership.
+  const userId = sessData.user?.id;
+  if (!userId) return NextResponse.redirect(`${origin}/pipeline`);
+
+  const admin = createAdminClient();
+  const [{ data: orgMember }, { data: tenantUser }] = await Promise.all([
+    admin.from('org_members').select('role').eq('user_id', userId).maybeSingle(),
+    admin
+      .from('tenant_users')
+      .select('tenant_id, role')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  if (orgMember) {
+    return NextResponse.redirect(`${origin}/pipeline`);
+  }
+  if (tenantUser) {
+    return NextResponse.redirect(`${origin}/dashboard/${tenantUser.tenant_id}`);
+  }
+  return NextResponse.redirect(`${origin}/pipeline?error=no_membership`);
 }
